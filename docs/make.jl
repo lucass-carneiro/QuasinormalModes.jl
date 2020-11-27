@@ -1,5 +1,5 @@
-if !("../src/" in LOAD_PATH)
-    push!(LOAD_PATH, "../src/")
+if !("./" in LOAD_PATH)
+    push!(LOAD_PATH, "./")
 end
 
 using Documenter
