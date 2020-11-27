@@ -16,6 +16,4 @@ makedocs(sitename="QuasinormalModes.jl",
              ]
          )
 
-deploydocs(repo = "https://github.com/lucass-carneiro/QuasinormalModes.jl.git",
-           branch = "gh-pages"
-           )
+deploydocs(repo = "https://github.com/lucass-carneiro/QuasinormalModes.jl.git")
