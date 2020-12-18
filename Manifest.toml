@@ -33,6 +33,12 @@ git-tree-sha1 = "5861101791fa76fafe8dddefd70ffbfe4e33ecae"
 uuid = "324d7699-5711-5eae-9e2f-1d82baa6b597"
 version = "0.9.0"
 
+[[ChainRulesCore]]
+deps = ["LinearAlgebra", "MuladdMacro", "SparseArrays"]
+git-tree-sha1 = "15081c431bb25848ad9b0d172a65794f3a3e197a"
+uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+version = "0.9.24"
+
 [[CommonSubexpressions]]
 deps = ["MacroTools", "Test"]
 git-tree-sha1 = "7b8a93dba8af7e3b42fecabf646260105ac373f7"
@@ -63,9 +69,9 @@ version = "1.4.0"
 
 [[DataFrames]]
 deps = ["CategoricalArrays", "Compat", "DataAPI", "Future", "InvertedIndices", "IteratorInterfaceExtensions", "LinearAlgebra", "Markdown", "Missings", "PooledArrays", "PrettyTables", "Printf", "REPL", "Reexport", "SortingAlgorithms", "Statistics", "TableTraits", "Tables", "Unicode"]
-git-tree-sha1 = "20159837c2e5e196793a313cd700b8199fd8f985"
+git-tree-sha1 = "b46e1deb4592a5df7416b10dfcd6b01fb194ab9a"
 uuid = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-version = "0.22.1"
+version = "0.22.2"
 
 [[DataStructures]]
 deps = ["Compat", "InteractiveUtils", "OrderedCollections"]
@@ -100,9 +106,9 @@ version = "1.0.2"
 
 [[Distances]]
 deps = ["LinearAlgebra", "Statistics"]
-git-tree-sha1 = "a5b88815e6984e9f3256b6ca0dc63109b16a506f"
+git-tree-sha1 = "e8b13ba5f166e11df2de6fc283e5db7864245df0"
 uuid = "b4f34e82-e78d-54a5-968a-f98e89d6e8f7"
-version = "0.9.2"
+version = "0.10.0"
 
 [[Distributed]]
 deps = ["Random", "Serialization", "Sockets"]
@@ -194,9 +200,9 @@ version = "1.16.0+7"
 
 [[LineSearches]]
 deps = ["LinearAlgebra", "NLSolversBase", "NaNMath", "Parameters", "Printf"]
-git-tree-sha1 = "d6e6b2ed397a402a22e474a3f1859c8c1db82c8c"
+git-tree-sha1 = "f27132e551e959b3667d8c93eae90973225032dd"
 uuid = "d3d80556-e9d4-5f37-9878-2ab0fcc64255"
-version = "7.1.0"
+version = "7.1.1"
 
 [[LinearAlgebra]]
 deps = ["Libdl"]
@@ -242,6 +248,11 @@ git-tree-sha1 = "916b850daad0d46b8c71f65f719c49957e9513ed"
 uuid = "78c3b35d-d492-501b-9361-3d52fe80e533"
 version = "0.7.1"
 
+[[MuladdMacro]]
+git-tree-sha1 = "c6190f9a7fc5d9d5915ab29f2134421b12d24a68"
+uuid = "46d2c3a1-f734-5fdb-9937-b9b9aeba4221"
+version = "0.2.2"
+
 [[NLSolversBase]]
 deps = ["DiffResults", "Distributed", "FiniteDiff", "ForwardDiff"]
 git-tree-sha1 = "39d6bc45e99c96e6995cbddac02877f9b61a1dd1"
@@ -250,9 +261,9 @@ version = "7.7.1"
 
 [[NLsolve]]
 deps = ["Distances", "LineSearches", "LinearAlgebra", "NLSolversBase", "Printf", "Reexport"]
-git-tree-sha1 = "650f266dcb5a24b4095fdab92f0137c0f4ee9392"
+git-tree-sha1 = "e7fcfb6107b412241bff2a7901b80136fe1f0b71"
 uuid = "2774e3e8-f4cf-5e23-947b-6d7e65073b56"
-version = "4.4.1"
+version = "4.5.0"
 
 [[NaNMath]]
 git-tree-sha1 = "bfe47e760d60b82b66b61d2d44128b62e3a369fb"
@@ -340,9 +351,9 @@ version = "0.2.0"
 
 [[Requires]]
 deps = ["UUIDs"]
-git-tree-sha1 = "e05c53ebc86933601d36212a93b39144a2733493"
+git-tree-sha1 = "cfbac6c1ed70c002ec6361e7fd334f02820d6419"
 uuid = "ae029012-a4dd-5104-9daa-d747884805df"
-version = "1.1.1"
+version = "1.1.2"
 
 [[SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
@@ -374,10 +385,10 @@ deps = ["LinearAlgebra", "Random"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [[SpecialFunctions]]
-deps = ["OpenSpecFun_jll"]
-git-tree-sha1 = "d8d8b8a9f4119829410ecd706da4cc8594a1e020"
+deps = ["ChainRulesCore", "OpenSpecFun_jll"]
+git-tree-sha1 = "75394dbe2bd346beeed750fb02baa6445487b862"
 uuid = "276daf66-3868-5448-9aa4-cd146d93841b"
-version = "0.10.3"
+version = "1.2.1"
 
 [[StaticArrays]]
 deps = ["LinearAlgebra", "Random", "Statistics"]
@@ -397,9 +408,9 @@ version = "1.2.1"
 
 [[SymEngine]]
 deps = ["Compat", "Libdl", "LinearAlgebra", "RecipesBase", "SpecialFunctions", "SymEngine_jll"]
-git-tree-sha1 = "459d6784180f5b428621eca9f1c1227c67f1e9ac"
+git-tree-sha1 = "a27a507f5092a77b0619721c6f852a5f634fc52f"
 uuid = "123dc426-2d89-5057-bbad-38513e3affd8"
-version = "0.8.2"
+version = "0.8.3"
 
 [[SymEngine_jll]]
 deps = ["GMP_jll", "Libdl", "MPC_jll", "MPFR_jll", "Pkg"]
