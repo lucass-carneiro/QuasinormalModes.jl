@@ -2,6 +2,13 @@
 
 Here we present the API reference for all functions and types within the module. The end user must only use the exported objects but private objects are also documented for completeness
 
+## Pulblic Modules
+```@autodocs
+Modules = [QuasinormalModes]
+Private = false
+Order   = [:module]
+```
+
 ## Public types
 
 ```@autodocs

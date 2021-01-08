@@ -1,5 +1,5 @@
 """
-    function AIMStep!(data::QNMData, icda, ccda, pcda, bcda, idda, cdda, pdda, bdda)
+    AIMStep!(p::AIMProblem{N,T}, c::AIMCache{N,U}) where {N <: Unsigned, T <: Number, U <: Any}
 
 Performs a single step of the AIM algorithm:
 1. The initial data arrays are not altered.
@@ -8,42 +8,38 @@ Performs a single step of the AIM algorithm:
 4. The current arrays receive the contents of the buffer arrays.
 
 # Input
-- `data::QNMData`: The spacetime data to use in the computation.
-- `icda`: Initial c data array.
-- `ccda`: Current c data array.
-- `pcda`: Previous c data array.
-- `bcda`: Buffer c data array.
-- `idda`: Initial d data array.
-- `cdda`: Current d data array.
-- `pdda`: Previous d data array.
-- `bdda`: Buffer d data array.
+- `p::AIMProblem`: The problem data to use in the computation.
+- `c::AIMCache`: The cache of arrays that corresponds to the problem p.
 
 # Output
     nothing
 """
-function AIMStep!(data::QNMData, icda, ccda, pcda, bcda, idda, cdda, pdda, bdda)
-    #= The currently computed coefficients will be the previous iteration coefficients
-     = after the iteration is done, so we store the current values to the previous array
-    =#
-    copy!(pcda, ccda)
-    copy!(pdda, cdda)
-    
-    #= Applay the AIM formula to compute the coeficients writing the results to the
-     = buffer arrays and reading data from all the other arrays.
-     = The use of a buffer array as temporary storage to the coefficients allow for the
-     = computation of the coefficients to be parallelized
-    =#
-    Threads.@threads for i in 0x00000:(data.nIter - 0x00001)
-        sumc = sum(k -> icda[k + 0x00001]*ccda[i - k + 0x00001], 0x00000:i)
-        sumd = sum(k -> idda[k + 0x00001]*ccda[i - k + 0x00001], 0x00000:i)
+function AIMStep!(p::AIMProblem{N,T}, c::AIMCache{N,U}) where {N <: Unsigned, T <: Number, U <: Any}
 
-        @inbounds bcda[i + 0x00001] = (i + 0x00001)*ccda[i + 0x00002] + cdda[i + 0x00001] + sumc
-        @inbounds bdda[i + 0x00001] = (i + 0x00001)*cdda[i + 0x00002] + sumd
+    zeroN = zero(N)
+    oneN = one(N)
+    twoN = oneN + oneN
+    
+    # The currently computed coefficients will be the previous iteration coefficients
+    # after the iteration is done, so we store the current values to the previous array
+    copy!(c.pcda, c.ccda)
+    copy!(c.pdda, c.cdda)
+    
+    # Applay the AIM formula to compute the coeficients writing the results to the
+    # buffer arrays and reading data from all the other arrays.
+    # The use of a buffer array as temporary storage to the coefficients allow for the
+    # computation of the coefficients to be parallelized
+    Threads.@threads for i in zeroN:(get_niter(p) - oneN)
+        @inbounds sumc = sum(k -> c.icda[k + oneN] * c.ccda[i - k + oneN], zeroN:i)
+        @inbounds sumd = sum(k -> c.idda[k + oneN] * c.ccda[i - k + oneN], zeroN:i)
+
+        @inbounds c.bcda[i + oneN] = (i + oneN) * c.ccda[i + twoN] + c.cdda[i + oneN] + sumc
+        @inbounds c.bdda[i + oneN] = (i + oneN) * c.cdda[i + twoN] + sumd
     end
 
     # Copy the data in the buffer arrays to the current arrays
-    copy!(ccda, bcda)
-    copy!(cdda, bdda)
+    copy!(c.ccda, c.bcda)
+    copy!(c.cdda, c.bdda)
 
     return nothing
 end

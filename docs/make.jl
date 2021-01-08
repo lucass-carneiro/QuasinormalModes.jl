@@ -10,10 +10,12 @@ makedocs(sitename="QuasinormalModes.jl",
          pages = [
              "index.md",
              "intro.md",
+             "org.md",
              "schw.md",
              "sho.md",
              "api_ref.md"
              ]
          )
 
-deploydocs(repo = "https://github.com/lucass-carneiro/QuasinormalModes.jl.git")
+# To view in browser start a server in the build dir:
+# python -m http.server --bind localhost

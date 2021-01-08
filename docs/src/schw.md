@@ -1,6 +1,6 @@
 # Complete Example: Schwarzschild Quasinormal Modes
 
-To illustrate how to use `QuasinormalModes.jl` we will show from start to finish how to compute the quasinormal modes of a Schwarzschild black hole perturbed by a field. This section will follow closely Emanuele Berti's lectures on black hole perturbation theory, which can be found [here](https://www.dropbox.com/sh/9th1um175m8gco9/AACCIkvNa3h-zdHBMZkQ31Baa?dl=0) and in Ref. [[3]](https://arxiv.org/abs/1111.5024)
+To illustrate how to use `QuasinormalModes.jl` we will show from start to finish how to compute the quasinormal modes of a Schwarzschild black hole perturbed by an external field. This section will follow closely Emanuele Berti's lectures on black hole perturbation theory, which can be found [here](https://www.dropbox.com/sh/9th1um175m8gco9/AACCIkvNa3h-zdHBMZkQ31Baa?dl=0) and in Ref. [[3]](https://arxiv.org/abs/1111.5024)
 
 # Mathematical preliminaries
 
@@ -32,180 +32,140 @@ which implies that when ``r=1`` we have ``x=0`` and when ``r\rightarrow\infty`` 
 -x (x-1)^2 f^{\prime\prime}(x) + (x (4 i (x-2) \omega -3 x+4)+2 i \omega -1) f^\prime(x)+f(x) \left(l^2+l+\left(s^2-1\right) (x-1)+4 (x-2) \omega ^2+4 i (x-1) \omega \right) = 0
 ```
 
-# Implementing the master equation
+# Implementing the master equation as an analytic problem
 
-`QuasinormalModes.jl` uses Julia's type system to implement structures that can used to solve the eigenvalue problem via the AIM. All ODEs are implemented as structures that are subtypes of one of the following abstract types. Each abstract type listed bellow is a subtype of the parent type `QNMData`:
-
-1. `QuadFreqData` - Aimed at ODEs in which the eigenvalue is a quadratic polynomial.
-2. `GenFreqData` - Aimed at ODEs in which the eigenvalue a general function.
-
-With structures that are a subtype of `QuadFreqData`, `QuasinormalModes.jl` takes advantage of the polynomial nature of the eigenvalues in the ODE and operates in a semi-analytic way. Modes are computed by finding roots of the large polynomials in the eigenvalue produced by the iteration steps of the AIM using [PolynomialRoots.jl](https://github.com/giordano/PolynomialRoots.jl). Since all roots are found, this approach can generate extensive lists of quasinormal modes without the need of an initial "guess".
-
-With structures that are a subtype of `GenFreqData`, `QuasinormalModes.jl` makes no assumptions about the eigenvalue and operates in a purely numeric way. In fact, the ODE might even contain numeric functions of the eigenvalue. Since it's hard to determine all the roots and poles of generic complex functions, when operating in this mode `QuasinormalModes.jl` requires in initial "guess" to be given for root finding which is carried out by [NLsolve.jl](https://github.com/JuliaNLSolvers/NLsolve.jl).
-
-!!! note "Semi-analytic VS numeric approach"
-    Because of the semi-analytic nature of the operation performed when a structure is a subtype of `QuadFreqData`, `QuasinormalModes.jl` is naturally slower to compute modes in this case. One may also find that for a large number of iterations the AIM might even fail to find modes. A general good approach would be to use the semi-analytic mode to generate lists of eigenvalues for a number of iterations that runs reasonably fast and then use these results as initial guesses for the numeric mode with a high number of iterations. 
-
-The AIM can be used to solve generic 2nd order ODES of the form
-
-```math
-y^{\prime\prime}(x) = \lambda_0(x)y^\prime(x) + s_0(x)y(x)
-```
-
-The structures we construct must contain the ``\lambda_0(x)`` and ``s_0(x)`` functions, which we will derive from or master equation. If we are sub-typing `QuadFreqData` we must implement these functions as well as ``x`` and ``\omega`` as symbolic variables and include [SymEngine.jl](https://github.com/symengine/SymEngine.jl) as a dependency. If we are sub-typing `GenFreqData` we must include [TaylorSeries.jl](https://github.com/JuliaDiff/TaylorSeries.jl) in the project as this package is responsible for computing the high order derivatives necessary to the AIM.
-
-## Using `QuadFreqData`
-
-Here is how to implement the Schwarzchild master equation we derived previously taking advantage of the fact that ``\omega`` is a quadratic polynomial
+In this section we will assume that the user has installed and loaded the `SymEngine` package. The first step is to create a parametric type that sub-types `AnalyticAIMProblem`. As the eigenvalue in the master equation is a quadratic polynomial, we will sub-type `QuadraticEigenvalueProblem` with the following structure:
 
 ```julia
-struct SchwarzschildData <: QuadFreqData # Indicate that we will operate semi-analytically
-    nIter::UInt32                        # The number of iteration the AIM will perform
-    x0::Float64                          # The evaluation point for the AIM functions
+struct SchwarzschildData{N,T} <: QuadraticEigenvalueProblem{N,T}
+    nIter::N
+    x0::T
 
-    l::UInt32                            # The angualar number.
-    s::UInt32                            # The perturbation spin.
-    vars::Tuple{Basic, Basic}            # The variables x and ω as SymEngine expressions.
-    exprs::Tuple{Basic, Basic}           # The functions λ0 and S0 as SymEngine expressions.
-    
-    function SchwarzschildData(nIter::UInt32, l::UInt32, s::UInt32, x0::Float64 = 0.5)
-	
-        # Make sure that teh evaluation point is inside the ODE interval.
-        # The ODE is singular at the endpoints so they are not allowed.
-        if x0 >= 1.0 || x0 <= 0.0
-            error("x0 must be a number in the open interval 0 < x < 1.")
-            throw(AIMEvalPointException)
-        end
-
-        vars = @vars x ω
-	
-        λ0 = (-1 + (2*im)*ω + x*(4 - 3*x + (4*im)*(-2 + x)*ω))/((-1 + x)^2*x)
-        S0 = (l + l^2 + (-1 + s^2)*(-1 + x) + (4*im)*(-1 + x)*ω + 4*(-2 + x)*ω^2)/((-1 + x)^2*x)
-
-        return new(nIter, x0, l, s, vars, (λ0, S0))
-    end
+    vars::Tuple{Basic, Basic}
+    exprs::Tuple{Basic, Basic}
 end
 ```
 
-Any structure that subtypes `QuadFreqData` **must** contain the following fields:
-1. `nIter::UInt32`
-2. `x0::Float64`
-3. `vars::Tuple{Basic, Basic}`
-4. `exprs::Tuple{Basic, Basic}`
+As the reader might notice the structure is quite simple. The variables `nIter` and `x0` store the AIM's number of iterations and expansion point, respectively while `vars` will be responsible for storing the `SymEngine` variables representing the ODE's variable and eigenvalue, respectively, as a tuple. Finally `exprs` will store the `SymEngine` expressions for the `λ0` and `S0` parts of the ODE.
 
-This is because `QuasinormalModes.jl` internally expects all concrete types that are sub-types of `QuadFreqData` to have these fields in order to function correctly. We recommend that users use the above example as a template to implement their own space-times.
+Next we create a parametric constructor for `SchwarzschildData` that will initializes the fields:
 
-## Using `GenFreqData`
+```julia
+function SchwarzschildData(nIter::N, x0::T, l::N, s::N) where {N,T}
+    vars = @vars x ω
 
-Here is how to implement the Schwarzchild master equation we derived previously in a purely numeric way
+    λ0 = (-1 + (2*im)*ω + x*(4 - 3*x + (4*im)*(-2 + x)*ω))/((-1 + x)^2*x)
+    S0 = (l + l^2 + (-1 + s^2)*(-1 + x) + (4*im)*(-1 + x)*ω + 4*(-2 + x)*ω^2)/((-1 + x)^2*x)
 
-```@julia
-struct NSchwarzschildData <: GenFreqData # Indicate that we will operate semi-analytically
-    nIter::UInt32                        # The number of iteration the AIM will perform
-    x0::Float64                          # The evaluation point for the AIM functions
-
-    l::UInt32                            # The angualar number.
-    s::UInt32                            # The perturbation spin.
-    
-    function NSchwarzschildData(nIter::UInt32, l::UInt32, s::UInt32, x0::Float64 = 0.5)
-        
-        # Make sure that teh evaluation point is inside the ODE interval.
-        # The ODE is singular at the endpoints so they are not allowed.
-        if x0 >= 1.0 || x0 <= 0.0
-            error("x0 must be a number in the open interval 0 < x < 1.")
-            throw(AIMEvalPointException)
-        end
-
-        return new(nIter, x0, l, s)
-    end
-end 
-
-function (data::NSchwarzschildData)(idx::UInt32,
-                                    x::TaylorSeries.Taylor1{Complex{BigFloat}},
-                                    ω::Complex{BigFloat}
-                                    )::Array{Complex{BigFloat},1}
-    
-    if idx == 0x00001
-        ts = (-1 + (2*im)*ω + x*(4 - 3*x + (4*im)*(-2 + x)*ω))/((-1 + x)^2*x) # The expression for λ0
-        return ts.coeffs
-    elseif idx == 0x00002
-        ts =(data.l + data.l^2 + (-1 + data.s^2)*(-1 + x) + (4*im)*(-1 + x)*ω + 4*(-2 + x)*ω^2)/((-1 + x)^2*x) # The expression for S0
-        return ts.coeffs
-    end
+    return SchwarzschildData{N,T}(nIter, x0, vars, (λ0, S0))
 end
 ```
 
-Any structure that subtypes `GenFreqData` **must** contain the following fields:
-1. `nIter::UInt32`
-2. `x0::Float64`
-
-Additionally the operator `()` must be overloaded to work with the newly defined type and it's signature must be **exactly** that of the example. In the expressions for `λ0` and `S0` the space-time specific parameters `l` and `s` have been replaced by `data.l` and `data.s` so that they can be located during runtime. Again we recommend that users use the above example as a template to implement their own space-times.
-
-!!! note "This is too much code!"
-    At this point the user might be scared with the amount of boilerplate code required to implement a spacetime so that `QuasinormalMods.jl` can do it's job. The authors are well aware of this fact and intend to improve the package so that it eventually becomes easier to implement these structures with the correct signatures. In the meantime, we recommend that the user uses the provided `.jl` example files as starting points to their projects. In the following section we will show how to use these structures to compute QNMs. Rest assured that once the structures are constructed, computing the modes is much easier.
-
-# Computing the modes
-
-In order to compute the modes it is only necessary to invoke the function `computeQNMs` with the space-time structure and in the case of a structure that sub-types `GenFreqData` the initial guess as a second argument.
-
-For example, if our structure is a syb-type of `QuadFreqData` we would do
+This constructor can be used by passing the values directly instead of explicitly declaring type parameters. The final step is to extend the default accessors functions to operate on `SchwarzschildData`
 
 ```julia
-data = SchwarzschildData(UInt32(50), UInt32(0), UInt32(0))
-modes = computeQNMs(data, plr_epsilon=BigFloat("1.0e-20"))
-```
-and `modes` would be an object of type `Array{Complex{BigFloat},1}` containing the computed modes with 20 iterations of the AIM.
+QuasinormalModes.λ0(d::SchwarzschildData{N,T}) where {N,T} = d.exprs[1]
+QuasinormalModes.S0(d::SchwarzschildData{N,T}) where {N,T}  = d.exprs[2]
 
-If our structure is a syb-type of `GenFreqData` we would do
+QuasinormalModes.get_niter(d::SchwarzschildData{N,T}) where {N,T} = d.nIter
+QuasinormalModes.get_x0(d::SchwarzschildData{N,T}) where {N,T} = d.x0
+
+QuasinormalModes.get_ODEvar(d::SchwarzschildData{N,T}) where {N,T} = d.vars[1]
+QuasinormalModes.get_ODEeigen(d::SchwarzschildData{N,T}) where {N,T} = d.vars[2]
+```
+These functions are fairly straightforward and accessors and require no additional comment.
+
+# Implementing the master equation as a numeric problem
+
+Again we start by defining a structure but this time around we sub-type `NumericAIMProblem`
 
 ```julia
-data = NSchwarzschildData(UInt32(50), UInt32(0), UInt32(0))
-mode = computeQNMs(data, Complex{BigFloat}( BigFloat("0.220"), BigFloat("-0.209")))
+struct NSchwarzschildData{N,T} <: NumericAIMProblem{N,T}
+    nIter::N
+    x0::T
+    l::N
+    s::N
+end
 ```
-and `mode` would be an object of type `SolverResults` returned by `NLsolve`. We encourage the reader to read `NLsolve`'s documentation, but what users usually will want to know is if the solver converged to a mode and the actual value of the mode. Convergence can be tested with
+
+Here `nIter` and `x0` have the same meaning as before, but now instead of storing symbolic variables and expressions we store two additional unsigned integers, `l` and `s`. These are the angular and spin parameters of the master equation. Here we must store them in the struct as they can't be "embedded" into the expressions for `λ0` and `S0` as in the analytic case.
+
+We proceeded once again by creating a more convenient constructor. This time no intermediate computation is required upon the construction:
 
 ```julia
-converged = mode.x_converged || mode.f_converged
+function NSchwarzschildData(nIter::N, x0::T, l::N, s::N) where {N,T}
+    return NSchwarzschildData{N,T}(nIter, x0, l, s)
+end
 ```
 
-and the real and imaginary part of the solution are obtained with
+Finally we extend the default implementations
 
 ```julia
-real_part = mode.zero[1]
-imag_part = mode.zero[2]
+QuasinormalModes.λ0(::NSchwarzschildData{N,T}) where {N,T} = (x,ω) -> (-1 + (2*im)*ω + x*(4 - 3*x + (4*im)*(-2 + x)*ω))/((-1 + x)^2*x)
+QuasinormalModes.S0(d::NSchwarzschildData{N,T}) where {N,T} = (x,ω) -> (d.l + d.l^2 + (-1 + d.s^2)*(-1 + x) + (4*im)*(-1 + x)*ω + 4*(-2 + x)*ω^2)/((-1 + x)^2*x)
+
+QuasinormalModes.get_niter(d::NSchwarzschildData{N,T}) where {N,T} = d.nIter
+QuasinormalModes.get_x0(d::NSchwarzschildData{N,T}) where {N,T} = d.x0
 ```
 
-We chose to return `NLsolve`'s solution object instead of a more "neatly" formatted complex number to allow the users more freedom in their applications.
+This time `λ0` and `S0` return two parameters lambda functions that will be called multiple times during the evaluation of the AIM. As we've previously mentioned, the first parameters is assumed to be the ODE's variables while the second the ODE's eigenvalue. The body of each lambda is the expression for their respective parts on the ODE.
 
-Aside from `computeQNMs`, if our space-time structure is a sub-type of `GenFreqData`, we can explore the existence of modes inside a grid of points in the complex plane. This is accomplished by the function `modesInGrid` In code we wold do
+# Constructing problems and initializing the cache
+
+We create our problems and cache objects by calling the constructors:
 
 ```julia
-data = NSchwarzschildData(UInt32(50), UInt32(0), UInt32(0))
+p_ana = SchwarzschildData(0x00030, Complex(0.43, 0.0), 0x00000, 0x00000);
+p_num = NSchwarzschildData(0x00030, Complex(0.43, 0.0), 0x00000, 0x00000);
 
-grid_start = Complex{BigFloat}(BigFloat("0.01"), BigFloat("-1.0"))
-grid_end = Complex{BigFloat}(BigFloat("1.0"), BigFloat("-0.01"))
-
-real_pts = 5
-imag_pts = 5
-
-grid = (grid_start, grid_end, real_pts, imag_pts)
-
-modes = modesInGrid(data, grid)
+c_ana = AIMCache(p_ana)
+c_num = AIMCache(p_num)
 ```
 
-The variable `modes` would be an array of type `Array{Complex{BigFloat},1}` containing the modes found in the grid. We specify a grid by start and end points in the complex plane and choosing how many points to compute in the real an imaginary part of the grid. In the example we will try to find modes for 25 (5x5) initial conditions inside the chosen rectangle in the complex plane. We might see that some modes repeat inside the `modes` array. this is of course to be expected as multiple initial conditions will lead `NLsolve` to converge to a certain mode.
+Here we are setting up problems to be solved using 48 iterations with `x0 = 0.43 + 0.0*im` and `l = s = 0`.
 
-# Printing the modes
+# Computing the eigenvalues
 
-Having computed a single mode or an array of modes we can easily operate on these results in any way we want. For convenience we provide functions to save print and filter modes. To save modes (an object of type `Array{Complex{BigFloat},1}` under the name `"qnms.dat"` we would simply do
+To compute eigenvalues, 3 functions are provided:
+1. `computeDelta!`: Compute the AIM "quantization condition".
+2. `computeEigenvalues`: Compute a single, or a list of eigenvalues.
+3. `eigenvaluesInGrid`: Find all eigenvalues in a certain numerical grid.
+
+Depending on the problem type, these functions return and behave differently. In a `QuadraticEigenvalueProblem` for instance, `computeDelta!` returns a polynomial whose roots are the eigenvalues of the ode. In a `NumericAIMProblem` it returns a value of the quantization condition at a given point, which means that in this case it behaves as a numerical function that can be used with an external root finding algorithm. To see the behaviour of these functions with each problem type I suggest reading the [API Reference](api_ref.md) where specific descriptions can be found. 
+
+First, we will call `computeEigenvalues(p_ana, c_ana)`. This returns an array with all the roots of the quantization condition. We will sort the array by descending order in the imaginary part and after that we will filter the array to remove entries whose real part is too small or with a positive imaginary part and print the result to `stdout`:
 
 ```julia
-saveQNMs(modes, filename = "qnms.dat")
+m_ana = computeEigenvalues(p_ana, c_ana)
+
+function printQNMs(qnms, cutoff, instab)
+    println("-"^165)
+    println("|", " "^36, "Re(omega)", " "^36, " ", " "^36, "Im(omega)", " "^36, "|")
+    println("-"^165)
+
+    for qnm in qnms
+        if real(qnm) > cutoff && ( instab ? true : imag(qnm) < big"0.0" )
+        println(real(qnm), "    ", imag(qnm))
+        end
+    end
+    
+    println("-"^165)
+
+    return nothing
+end
+
+sort!(m_ana, by = x -> imag(x))
+printQNMs(m_ana, 1.0e-10, false)
 ```
 
-There are also arguments controlling the cutoff of the real part of the modes (the value from which modes are no longer saved in the output file) and whether to save instabilities (modes with positive imaginary part).
+Note that not all values are actually eigenvalues of the ODE (that is, quasinormal modes). This is to be expected and a similar effect is also observed in other numerical methods that perform the same task, such as the pseudo-spectral method. To find "true" modes, the user must experiment with the expansion parameter `x0`, the number of iterations and perform successive convergence tests with the computed modes.
 
-The function `printQNMs` has the exact same signature as `saveQNMs` but instead of outputting to a file it writes the modes to `stdout`. Finally the function `filterQNMs!` has also the same signature and filters an array of QNMs in-place according to the `cutoff` and `instab` parameters.
+Next we will call
 
-!!! note "Complete code"
-    The complete code of this example can be found under **TODOl: LINK TO EXAMPLE FILE**
+```julia
+ev = computeEigenvalues(p_num, c_num, Complex(0.22, -0.20), nls_xtol = 1.0e-10, nls_ftol = 1.0e-10)
+```
+
+The variable `ev` now contains a `SolverResults` object from the [NLsolve.jl](https://github.com/JuliaNLSolvers/NLsolve.jl) package. The first solution element represents the real part of the computed mode while the second represents the imaginary part. The object also contains information about the convergence of the method. Note that with a numerical problem we can only find one mode at a time using a certain initial guess. This can be somewhat remedied by using `eigenvaluesInGrid`, which uses multiple initial conditions as a guess and collects the converged results.
+
+The complete source code of this example can be found in [schwarzschild.jl](https://github.com/lucass-carneiro/QuasinormalModes.jl/blob/master/examples/schwarzschild.jl)

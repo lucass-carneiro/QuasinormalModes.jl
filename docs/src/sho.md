@@ -1,10 +1,10 @@
 # Complete Example: The Harmonic Oscilator
 
-We can use `QuasinormalModes.jl` to compute the eigenvalues of any 2nd order differential equation. To illustrate this we will show how to compute the energy eigenvalues of the quantum harmonic oscillator following Ref. [[3]](https://arxiv.org/abs/1111.5024).
+We will now turn away from general relativity and use `QuasinormalModes.jl` to compute to compute the energy eigenvalues of the quantum harmonic oscillator following [this paper](https://arxiv.org/abs/1111.5024).
 
 # Mathematical preliminaries
 
-If we measure the energy of the system in units of ``\hbar\omega`` and distance in units of ``\sqrt{\hbar/(m\omega)}`` the time independent Schrödinger equation for the system is written as
+If we measure the energy of the system in units of ``\hbar\omega`` and distance in units of ``\sqrt{\hbar/(m\omega)}`` the time independent Schrödinger equation for the quantum harmonic oscilator is written as
 
 ```math
 -\psi^{\prime\prime}(x) + x^2\psi(x) = \epsilon\psi(x)
@@ -14,114 +14,145 @@ where we defined ``\epsilon \equiv 2 E`` and ``E`` is the quantum state's energy
 ```math
 \psi(x) = e^{-x^2/2}f(x)
 ```
-which substituting in the original equation yeilds
+which substituting in the original equation yields
 
 ```math
 f^{\prime\prime}(x) = 2 x f^\prime(x) + (1-\epsilon)f(x)
 ```
 
-This allows us to easily identify ``\lambda_0 = 2x`` and ``s_0 = 1 - \epsilon``. In all our implementations we shall refer the sough eigenvalue ``\epsilon`` using the variable `ω` in order to maintain consistency with the previous example.
+This allows us to easily identify ``\lambda_0 = 2x`` and ``s_0 = 1 - \epsilon``. In all our implementations we shall refer the sought eigenvalue ``\epsilon`` using the variable `ω` in order to maintain consistency with the previous example.
 
-# Implementing Using `QuadFreqData`
+# Implementing the master equation as an analytic problem
+
+In this section we will assume that the user has installed and loaded the `SymEngine` package. The first step is to create a parametric type that sub-types `AnalyticAIMProblem`. As the eigenvalue in the master equation is a quadratic polynomial, we will sub-type `QuadraticEigenvalueProblem` with the following structure:
 
 ```julia
-struct HarmonicOscilatorData <: QuadFreqData # Indicate that we will operate semi-analytically
-    nIter::UInt32                            # The number of iteration the AIM will perform
-    x0::Float64                              # The evaluation point for the AIM functions
+struct HarmonicOscilatorData{N,T} <: QuadraticEigenvalueProblem{N,T}
+    nIter::N
+    x0::T
 
-    vars::Tuple{Basic, Basic}                # The variables x and ω as SymEngine expressions.
-    exprs::Tuple{Basic, Basic}               # The functions λ0 and S0 as SymEngine expressions.
-    
-    function HarmonicOscilatorData(nIter::UInt32, x0::Float64 = 0.5)
+    vars::Tuple{Basic, Basic}
+    exprs::Tuple{Basic, Basic}
+end
+```
+Following our previous example, we implement the constructor and extend the default implementations:
+
+```julia
+function HarmonicOscilatorData(nIter::N, x0::T) where {N,T}
 	
-        vars = @vars x ω
-	
-        λ0 = 2*x
-        S0 = 1 - ω
+    vars = @vars x ω
 
-        return new(nIter, x0, vars, (λ0, S0))
-    end
-end 
+    λ0 = 2*x
+    S0 = 1 - ω
+
+    return HarmonicOscilatorData{N,T}(nIter, x0, vars, (λ0, S0))
+end
+
+QuasinormalModes.λ0(d::HarmonicOscilatorData{N,T}) where {N,T} = d.exprs[1]
+QuasinormalModes.S0(d::HarmonicOscilatorData{N,T}) where {N,T}  = d.exprs[2]
+
+QuasinormalModes.get_niter(d::HarmonicOscilatorData{N,T}) where {N,T} = d.nIter
+QuasinormalModes.get_x0(d::HarmonicOscilatorData{N,T}) where {N,T} = d.x0
+
+QuasinormalModes.get_ODEvar(d::HarmonicOscilatorData{N,T}) where {N,T} = d.vars[1]
+QuasinormalModes.get_ODEeigen(d::HarmonicOscilatorData{N,T}) where {N,T} = d.vars[2]
 ```
 
-# Implementing Using `GenFreqData`
+# Implementing the master equation as a numeric problem
+
+The structure, constructor and extensions are
+
+```
+struct NHarmonicOscilatorData{N,T} <: NumericAIMProblem{N,T}
+    nIter::N
+    x0::T
+end
+
+function NHarmonicOscilatorData(nIter::N, x0::T) where {N,T}
+    return NHarmonicOscilatorData{N,T}(nIter, x0)
+end
+
+QuasinormalModes.λ0(::NHarmonicOscilatorData{N,T}) where {N,T} = (x,ω) -> 2*x
+QuasinormalModes.S0(::NHarmonicOscilatorData{N,T}) where {N,T} = (x,ω) -> 1 - ω + x - x
+
+QuasinormalModes.get_niter(d::NHarmonicOscilatorData{N,T}) where {N,T} = d.nIter
+QuasinormalModes.get_x0(d::NHarmonicOscilatorData{N,T}) where {N,T} = d.x0
+```
+
+# Constructing problems and initializing the cache
+
+Once again, we create our problems and cache objects by calling the constructors:
 
 ```julia
-struct NHarmonicOscilatorData <: GenFreqData # Indicate that we will operate semi-analytically
-    nIter::UInt32                            # The number of iteration the AIM will perform
-    x0::Float64                              # The evaluation point for the AIM functions
-    
-    function NHarmonicOscilatorData(nIter::UInt32, x0::Float64 = 0.0)
-        return new(nIter, x0)
-    end
-end 
+p_ana = HarmonicOscilatorData(0x0000A, 0.5);
+p_num = NHarmonicOscilatorData(0x0000A, 0.5);
 
-function (data::NHarmonicOscilatorData)(idx::UInt32,
-                                        x::TaylorSeries.Taylor1{Complex{BigFloat}},
-                                        ω::Complex{BigFloat}
-                                        )::Array{Complex{BigFloat},1}
-    
-    if idx == 0x00001
-        ts = 2*x # The expression for λ0
-        return ts.coeffs
-    elseif idx == 0x00002
-        ts = 1 - ω + x - x # The expression for S0. We add and subtract x in order for the taylor expansion to work
-        return ts.coeffs
-    end
-end
+c_ana = AIMCache(p_ana)
+c_num = AIMCache(p_num)
 ```
 
-!!! note "Add and subtract `x`"
-    In the expression for `S0` we have added and subtracted the variable `x`. This is done because as `S0` is independent of `x` the variable `ts` would be of type `Complex{BigFloat}` and the `ts.coeffs` instruction would fail. By adding and subtracting s we transform the expression for `S0` in a `TaylorSeries` object that can be expanded correctly.
+Here we are setting up problems to be solved using 10 iterations with `x0 = 0.5`
 
-# Computing the modes
+# Computing the eigenvalues
 
-To compute the modes we proceed exactly as in the previous Schwarzschild example. The eigenenergies of the harmonic oscillator are well know
-
-```math
-\epsilon_n = 2 n + 1
-```
-thus we will use custom printing routines to display only the real part of the computed energies and sort them by ascending order. In the semi-analytic case this can be done with
-
-```
-data = HarmonicOscilatorData(UInt32(50))
-modes = computeQNMs(data, plr_epsilon=BigFloat("1.0e-20"))
-
-sort!(modes, by = x -> real(x))
-    
-for mode in modes
-    println(round(Int64,real(mode)))
-end	
-```
-
-which will produce a list of the 50 first even numbers which corresponds to the expected result. We can also verify that the purely numeric case also produces correct results by computing a single energy with
+Once again we compute the eigenvalues by calling
 
 ```julia
-data = NHarmonicOscilatorData(UInt32(50))
-mode = computeQNMs(data, Complex{BigFloat}(BigFloat("15.0"), BigFloat("1.0")), nls_xtol=BigFloat("1.0e-20"), nls_ftol=BigFloat("1.0e-20"))
-
-if mode.x_converged || mode.f_converged
-    println(mode.zero[1], "    ", mode.zero[2])
-else
-    println("Did not converge to any modes :-(")
-end
+ev_ana = computeEigenvalues(p_ana, c_ana)
+ev_num = eigenvaluesInGrid(p_num, c_num, (0.0, 21.0))
 ```
-or by sweeping the complex grid with
+
+The results are two arrays, containing the eigenvalues. As before, we define a function to print the results to `stdout`
 
 ```julia
-data = NHarmonicOscilatorData(UInt32(50))
+function printEigen(eigenvalues)
+    println("--------------------------------------")
 
-grid_start = Complex{BigFloat}(BigFloat("1.0"), BigFloat("-1.0"))
-grid_end = Complex{BigFloat}(BigFloat("20.0"), BigFloat("-0.01"))
-
-real_pts = 5
-imag_pts = 5
-
-grid = (grid_start, grid_end, real_pts, imag_pts)
-modes = modesInGrid(data, grid, xtol=BigFloat("1.0e-20"), ftol=BigFloat("1.0e-20"))
-sort!(modes, by = x -> real(x))
+    for i in eachindex(eigenvalues)
+        println("n = $i, ω = $(eigenvalues[i])")
+    end
     
-for mode in modes
-    println(round(Int64,real(mode)))
+    println("--------------------------------------")
+
+    return nothing
 end
+
+println("Analytic results")
+printEigen(reverse!(ev_ana))
+
+println("Numeric results")
+printEigen(ev_num)
+```
+
+The complete source file for this example can be found in [harmonic_oscilator.jl](https://github.com/lucass-carneiro/QuasinormalModes.jl/blob/master/examples/harmonic_oscilator.jl). The output is agreement with the expected result for the eigenenergies of the harmonic oscillator, that is, ``E_n = n + 1/2``
+
+```
+Analytic results
+--------------------------------------
+n = 1, ω = 0.9999999999999999 + 0.0im
+n = 2, ω = 2.9999999999999964 + 0.0im
+n = 3, ω = 4.999999999999426 + 0.0im
+n = 4, ω = 7.000000000006788 + 0.0im
+n = 5, ω = 8.999999999980533 + 0.0im
+n = 6, ω = 10.999999804542819 + 0.0im
+n = 7, ω = 13.000000959453153 + 0.0im
+n = 8, ω = 14.999998108295404 + 0.0im
+n = 9, ω = 17.00000187312756 + 0.0im
+n = 10, ω = 18.999999068409203 - 0.0im
+n = 11, ω = 21.000000186185098 + 0.0im
+--------------------------------------
+Numeric results
+--------------------------------------
+n = 1, ω = 1.0
+n = 2, ω = 3.000000000000006
+n = 3, ω = 5.000000000000002
+n = 4, ω = 7.000000000000006
+n = 5, ω = 8.999999999999988
+n = 6, ω = 11.0
+n = 7, ω = 12.999999999999977
+n = 8, ω = 15.000000000000014
+n = 9, ω = 16.999999999999908
+n = 10, ω = 19.000000000000025
+n = 11, ω = 21.0
+--------------------------------------
 ```
