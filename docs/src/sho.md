@@ -7,17 +7,17 @@ We will now turn away from general relativity and use `QuasinormalModes.jl` to c
 If we measure the energy of the system in units of ``\hbar\omega`` and distance in units of ``\sqrt{\hbar/(m\omega)}`` the time independent Schrödinger equation for the quantum harmonic oscilator is written as
 
 ```math
--\psi^{\prime\prime}(x) + x^2\psi(x) = \epsilon\psi(x)
+-\psi^{\prime\prime}(x) + x^2\psi(x) = \epsilon\psi(x),
 ```
 where we defined ``\epsilon \equiv 2 E`` and ``E`` is the quantum state's energy. Imposing that ``\psi(x)`` decays like a Gaussian distribution asymptotically, we apply the ansatz
 
 ```math
 \psi(x) = e^{-x^2/2}f(x)
 ```
-which substituting in the original equation yields
+which, substituting in the original equation, yields
 
 ```math
-f^{\prime\prime}(x) = 2 x f^\prime(x) + (1-\epsilon)f(x)
+f^{\prime\prime}(x) = 2 x f^\prime(x) + (1-\epsilon)f(x).
 ```
 
 This allows us to easily identify ``\lambda_0 = 2x`` and ``s_0 = 1 - \epsilon``. In all our implementations we shall refer the sought eigenvalue ``\epsilon`` using the variable `ω` in order to maintain consistency with the previous example.
@@ -35,7 +35,7 @@ struct HarmonicOscilatorData{N,T} <: QuadraticEigenvalueProblem{N,T}
     exprs::Tuple{Basic, Basic}
 end
 ```
-Following our previous example, we implement the constructor and extend the default implementations:
+Now we implement the constructor and extend the default implementations:
 
 ```julia
 function HarmonicOscilatorData(nIter::N, x0::T) where {N,T}

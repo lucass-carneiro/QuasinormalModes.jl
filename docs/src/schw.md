@@ -9,16 +9,16 @@ Let's say that our Schwarzschild black hole is being perturbed by an external fi
 ```math
 r(r-1)\psi_{ls}^{\prime\prime}(r) + \psi_{ls}^{\prime}(r) - \left[ l(l+1) - \frac{s^2-1}{r} - \frac{\omega^2 r^3}{r-1} \right]\psi_{ls}(r) = 0
 ```
-where primes denote derivatives with respect to the radial coordinate ``r`` and ``\omega`` are the quasinormal frequencies. Since we are solving for quasinormal modes, we need to enforce the proper boundary conditions in the master equation: Classically no wave can escape from the BH's event horizon and at spatial infinity waves can only "leave" the space-time. It's thus said that our field is purely *ingoing* in the event horizon (when ``r\rightarrow 1``) and purely *outgoing* at spatial infinity (when ``r\rightarrow\infty``). Mathematically, this means that the solution to the master equation must be of the form
+where primes denote derivatives with respect to the radial coordinate ``r`` and ``\omega`` are the quasinormal frequencies. Since we are solving for quasinormal modes, we need to enforce the proper boundary conditions in the master equation: classically no wave can escape from the BH's event horizon and at spatial infinity waves can only "leave" the space-time. It's thus said that our field is purely *ingoing* in the event horizon (when ``r\rightarrow 1``) and purely *outgoing* at spatial infinity (when ``r\rightarrow\infty``). Mathematically, this means that the solution to the master equation must be of the form
 
 ```math
-\psi_{ls}(r) = (r-1)^{-i \omega} r^{2 i \omega} e^{i \omega (r-1)}f_{ls}(r)
+\psi_{ls}(r) = (r-1)^{-i \omega} r^{2 i \omega} e^{i \omega (r-1)}f_{ls}(r).
 ```
 
-By substituting this solution *ansatz* in the master equation, we obtain a new 2nd order ODE, now for the function ``f_{ls}(r)``. This new ODE is enforcing the correct boundary quasinormal mode boundary conditions. This process usually referred to as incorporating the boundary conditions into the differential equation. The resulting equation reads
+By substituting this solution *ansatz* in the master equation, we obtain a new 2nd order ODE, now for the function ``f_{ls}(r)``. This new ODE is enforcing the correct quasinormal mode boundary conditions. This process usually referred to as incorporating the boundary conditions into the differential equation. The resulting equation reads
 
 ```math
-r \left((r-1) r f^{\prime\prime}(r)+\left(1+2 i \left(r^2-2\right) \omega \right) f^\prime(r)\right)+f(r) \left(-r \left(l^2+l-4 \omega ^2\right)+s^2+(2 \omega +i)^2\right) = 0
+r \left((r-1) r f^{\prime\prime}(r)+\left(1+2 i \left(r^2-2\right) \omega \right) f^\prime(r)\right)+f(r) \left(-r \left(l^2+l-4 \omega ^2\right)+s^2+(2 \omega +i)^2\right) = 0.
 ```
 
 The last step, although not strictly required, facilitates the numerical handling of the equation. Because the radial coordinates extends from the event horizon to infinity, that is, ``r\in [1,\infty]`` and computers can't handle infinities, we re-scale the ODE's domain to a finite one. This can be easily done with the change of variables
@@ -29,7 +29,7 @@ x = 1 - \frac{1}{r}
 which implies that when ``r=1`` we have ``x=0`` and when ``r\rightarrow\infty`` we have ``x = 1``. Thus the solution domain has been successfully compactifyied in the interval ``x\in[0,1]``. By making this change of variables we get to the final form of the master equation which we will actually feed to `QuasinormalModes.jl`
 
 ```math
--x (x-1)^2 f^{\prime\prime}(x) + (x (4 i (x-2) \omega -3 x+4)+2 i \omega -1) f^\prime(x)+f(x) \left(l^2+l+\left(s^2-1\right) (x-1)+4 (x-2) \omega ^2+4 i (x-1) \omega \right) = 0
+-x (x-1)^2 f^{\prime\prime}(x) + (x (4 i (x-2) \omega -3 x+4)+2 i \omega -1) f^\prime(x)+f(x) \left(l^2+l+\left(s^2-1\right) (x-1)+4 (x-2) \omega ^2+4 i (x-1) \omega \right) = 0.
 ```
 
 # Implementing the master equation as an analytic problem
@@ -90,7 +90,7 @@ end
 
 Here `nIter` and `x0` have the same meaning as before, but now instead of storing symbolic variables and expressions we store two additional unsigned integers, `l` and `s`. These are the angular and spin parameters of the master equation. Here we must store them in the struct as they can't be "embedded" into the expressions for `λ0` and `S0` as in the analytic case.
 
-We proceeded once again by creating a more convenient constructor. This time no intermediate computation is required upon the construction:
+We proceed once again by creating a more convenient constructor. This time no intermediate computation is required upon the construction:
 
 ```julia
 function NSchwarzschildData(nIter::N, x0::T, l::N, s::N) where {N,T}
@@ -131,7 +131,7 @@ To compute eigenvalues, 3 functions are provided:
 2. `computeEigenvalues`: Compute a single, or a list of eigenvalues.
 3. `eigenvaluesInGrid`: Find all eigenvalues in a certain numerical grid.
 
-Depending on the problem type, these functions return and behave differently. In a `QuadraticEigenvalueProblem` for instance, `computeDelta!` returns a polynomial whose roots are the eigenvalues of the ode. In a `NumericAIMProblem` it returns a value of the quantization condition at a given point, which means that in this case it behaves as a numerical function that can be used with an external root finding algorithm. To see the behaviour of these functions with each problem type I suggest reading the [API Reference](api_ref.md) where specific descriptions can be found. 
+Depending on the problem type, these functions return and behave differently. In a `QuadraticEigenvalueProblem` for instance, `computeDelta!` returns a polynomial whose roots are the eigenvalues of the ODE. In a `NumericAIMProblem` it returns a value of the quantization condition at a given point, which means that in this case it behaves as a numerical function that can be used with an external root finding algorithm. To see the behaviour of these functions with each problem type I suggest reading the [API Reference](api_ref.md) where specific descriptions can be found. 
 
 First, we will call `computeEigenvalues(p_ana, c_ana)`. This returns an array with all the roots of the quantization condition. We will sort the array by descending order in the imaginary part and after that we will filter the array to remove entries whose real part is too small or with a positive imaginary part and print the result to `stdout`:
 

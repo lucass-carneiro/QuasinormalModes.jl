@@ -3,7 +3,7 @@ __precompile__()
 """
 This package contains routines for computing eigenvalues of second
 order ordinary differential equations and in particular the
-qusinormal modes (QNMs) of black holes in General Relativity using
+quasinormal modes (QNMs) of black holes in General Relativity using
 the "Asymptotic Iteration Method" [1] using the implementation
 based on the "improved" version of the AIM, described in [2].
 
@@ -81,12 +81,12 @@ Super-type of traits describing the analyticity of eigenvalue problems.
 abstract type AnalyticityTrait end
 
 """
-All problems with eigenvalues that CAN be described by analytic functions have this trait.
+All problems with eigenvalues that *can* be described by analytic functions have this trait.
 """
 struct IsAnalytic <: AnalyticityTrait end
 
 """
-All problems with eigenvalues that CAN'T be described by analytic functions have this trait.
+All problems with eigenvalues that *can't* be described by analytic functions have this trait.
 """
 struct IsNumeric <: AnalyticityTrait end
 

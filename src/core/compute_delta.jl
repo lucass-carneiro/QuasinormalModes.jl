@@ -8,7 +8,7 @@ Compute and return the AIM "quantization condition".
 - `c::AIMCache`: An AIM cache object created from p.
 
 # Output
-An object of type `Polynomial{T}` whose roots are the the problem's eigenvalues.
+An object of type `Polynomial{T}` whose roots are the problem's eigenvalues.
 """
 function computeDelta!(p::QuadraticEigenvalueProblem{N,T}, c::AIMCache{N,Polynomial{T}}) where {N <: Unsigned, T <: Number}
     

@@ -1,8 +1,36 @@
 # Package organization
 
-`QuasinormalModes.jl` employs two main strategies in order to find eigenvalues using the AIM: problems can be solved in a semi-analytic or purely numeric fashion. We make use of Julia's type system in order to implement structures that reflect these operation modes. All of the package's exported functionality is designed to operate on sub-types of abstract types that reflect the desired solution strategy (semi-analytic or numeric). The user is responsible for constructing concrete types that are sub-types of the exported abstract types with the actual problem specific information. It's thus usefully to start by inspecting the package's exported type hierarchy:
+## A Brief description of the AIM
+
+`QuasinormalModes.jl` is in it's core an implementation of the Asymptotic Iteration Method. For a complete description of the general method the reader is encouraged to read [this paper](https://arxiv.org/abs/math-ph/0309066v1). Our implementation is based on the variation of the method described in [this paper](https://arxiv.org/abs/1111.5024). The method requires 3 basic steps:
+
+1. Incorporate the asymptotic boundary conditions into the ODE.
+2. Compactify the domain of the problem (if it isn't already compact).
+3. Write the ODE in the form ``y^{\prime\prime}(x) = \lambda_0(x)y^{\prime}(x) + s_0(x)y(x)``
+
+From the ODE coefficients ``\lambda_0(x)`` and ``s_0(x)`` the AIM computes the eigenvalues by requiring that the "quantization condition"
+
+```math
+\delta_n = s_n\lambda_{n-1} - s_{n-1}\lambda_{n} = 0
+```
+
+is satisfied, where
+
+```math
+\lambda_n = \lambda^\prime_{n-1} + s_{n-1} + \lambda_0 \lambda_{n-1}
+```
+
+and
+
+```math
+s_n = s^\prime_{n-1} + s_0 s_{n-1}.
+```
+
+`QuasinormalModes.jl` expects as input the ``\lambda_0(x)`` and ``s_0(x)`` coefficients computed with the 3 steps described above. This documentation contains two practical examples of how to obtain and feed such coefficients to the package.
 
 ## The type hierarchy
+
+`QuasinormalModes.jl` employs two main strategies in order to find eigenvalues using the AIM: problems can be solved in a semi-analytic or purely numeric fashion. We make use of Julia's type system in order to implement structures that reflect these operation modes. All of the package's exported functionality is designed to operate on sub-types of abstract types that reflect the desired solution strategy (semi-analytic or numeric). The user is responsible for constructing concrete types that are sub-types of the exported abstract types with the actual problem specific information. It's thus usefully to start by inspecting the package's exported type hierarchy:
 
 ```@raw html
 <table border="0"><tr>
@@ -16,8 +44,8 @@
 ```
 
 1. `AIMProblem` is the parent type of all problems that can be solved with this package. All problems must be sub-type it and a user can use it to construct functions that operate on all AIM solvable problems.
-2. `AnalyticAIMProlem` is the parent type of all problems that can be solved using a semi-analytic approach.
-3. `NumericAIMProblem` is the parent type of all problems that can be solved using a numeric approach.
+2. `NumericAIMProblem` is the parent type of all problems that can be solved using a numeric approach.
+3. `AnalyticAIMProlem` is the parent type of all problems that can be solved using a semi-analytic approach.
 4. `QuadraticEigenvaluePoblem` is a specific type of analytic problem whose eigenvalues appear in the ODE as a (possibly incomplete) quadratic polynomial.
 
 All types are parameterized by two parameters: `N <: Unsigned` and `T <: Number` which represent respectively, the type used to represent the number of iterations the AIM will perform and the type used in the numeric computations of the method.
@@ -42,8 +70,8 @@ Failure to implement these functions returns an error with the appropriate messa
 ## Extending the default functionality
 
 The following assumes that the package `SymEngine` is installed. If a problem type `P{N,T}` is a sub-type of `AnalyticAIMProblem{N,T}`, the user must extend the default implementations abiding by the following rules
-1. `QuasinormalModes.λ0(p::P{N,T}) where {N,T}` must return a `SymEngine.Basic` objects representing the symbolic expression for the `λ0` part of the ODE.
-2. `QuasinormalModes.S0(p::P{N,T}) where {N,T}` must return a `SymEngine.Basic` objects representing the symbolic expression for the `S0` part of the ODE.
+1. `QuasinormalModes.λ0(p::P{N,T}) where {N,T}` must return a `SymEngine.Basic` object representing the symbolic expression for the `λ0` part of the ODE.
+2. `QuasinormalModes.S0(p::P{N,T}) where {N,T}` must return a `SymEngine.Basic` object representing the symbolic expression for the `S0` part of the ODE.
 3. `QuasinormalModes.get_ODEvar(p::P{N,T}) where {N,T}` must return a `SymEngine.Basic` objects representing the `SymEngine` variable associated with the ODE's variable.
 4. `QuasinormalModes.get_ODEeigen(p::P{N,T}) where {N,T}` must return a `SymEngine.Basic` objects representing the `SymEngine` variable associated with the ODE's eigenvalue.
 

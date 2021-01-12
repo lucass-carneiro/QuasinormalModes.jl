@@ -6,8 +6,8 @@ This function re implements SymEngine's own `diff` function using an early quitt
 
 # Input
 - `n::T`: The order of the derivative.
-- `f::Basic`: The expression to derivate.
-- `v::Basic`: The variable to derivate with.
+- `f::Basic`: The expression to compute the derivative.
+- `v::Basic`: The variable with respect to which the derivative will be computed.
 
 # Output
 A `SymEngine.Basic` object with the derived expression.
@@ -31,10 +31,10 @@ This function is only a thin wrapper around SymEngine's own `diff` function.
 It works as a barrier function that produces a type stable `Basic` result.
 
 # Input
-- `p::AnalyticAIMProblem`: The problem data with the expressions to derivate.
+- `p::AnalyticAIMProblem`: The problem data with the expressions to compute the derivative.
 - `n::Unsigned`: The order of the derivative.
-- `f::Function`: The actual expression to derivate. Either λ0 or S0.
-- `v::Function`: The variable to derivate with. Either get_ODEvar or get_ODEeigen.
+- `f::Function`: The actual expression to compute the derivative. Either λ0 or S0.
+- `v::Function`: The variable with respec to which the derivative will be computed. Either get_ODEvar or get_ODEeigen.
 
 # Output
 A `SymEngine.Basic` object with the derived expression.
@@ -49,7 +49,7 @@ end
 Create a second order `Polynomial` object in the variable `ω` by computing derivatives of `λ0` or `S0`.
 
 # Input
-- `p::QuadraticEigenvalueProblem`: The problem data with the expressions to derivate.
+- `p::QuadraticEigenvalueProblem`: The problem data with the expressions to compute the derivative.
 - `n::Unsigned`: The order of the derivative.
 - `f::Function`: the function to extract the polynomial from. Either λ0 or S0.
 
@@ -81,7 +81,7 @@ end
 Compute the n-th coefficient of the Taylor expansion around x0 for the functions `λ0` or `S0`
 
 # Input
-- `p::QuadraticEigenvalueProblem`: The problem data with the expressions to derivate.
+- `p::QuadraticEigenvalueProblem`: The problem data with the expressions to compute the derivative.
 - `n::Unsigned`: The order of the derivative.
 - `f::Function`: the function to extract the polynomial from. Either λ0 or S0.
 
