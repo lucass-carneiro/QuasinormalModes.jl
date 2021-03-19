@@ -23,6 +23,7 @@ struct AIMCache{N <: Unsigned, T <: Any}
     cdda::Array{T,1}
     pdda::Array{T,1}
     bdda::Array{T,1}
+
     size::N
 end
 

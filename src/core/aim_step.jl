@@ -24,17 +24,23 @@ function AIMStep!(p::AIMProblem{N,T}, c::AIMCache{N,U}) where {N <: Unsigned, T 
     # after the iteration is done, so we store the current values to the previous array
     copy!(c.pcda, c.ccda)
     copy!(c.pdda, c.cdda)
-    
-    # Applay the AIM formula to compute the coeficients writing the results to the
+
+    # Apply the AIM formula to compute the coeficients writing the results to the
     # buffer arrays and reading data from all the other arrays.
     # The use of a buffer array as temporary storage to the coefficients allow for the
     # computation of the coefficients to be parallelized
-    Threads.@threads for i in zeroN:(get_niter(p) - oneN)
-        @inbounds sumc = sum(k -> c.icda[k + oneN] * c.ccda[i - k + oneN], zeroN:i)
-        @inbounds sumd = sum(k -> c.idda[k + oneN] * c.ccda[i - k + oneN], zeroN:i)
+    @simd for i in zeroN:(get_niter(p) - oneN)
+        
+        c_sum = zero(T)
+        d_sum = zero(T)
 
-        @inbounds c.bcda[i + oneN] = (i + oneN) * c.ccda[i + twoN] + c.cdda[i + oneN] + sumc
-        @inbounds c.bdda[i + oneN] = (i + oneN) * c.cdda[i + twoN] + sumd
+        @simd for k in zeroN:i
+            @inbounds c_sum += c.icda[k + oneN] * c.ccda[i - k + oneN]
+            @inbounds d_sum += c.idda[k + oneN] * c.ccda[i - k + oneN]
+        end
+
+        @inbounds c.bcda[i + oneN] = (i + oneN) * c.ccda[i + twoN] + c.cdda[i + oneN] + c_sum
+        @inbounds c.bdda[i + oneN] = (i + oneN) * c.cdda[i + twoN] + d_sum
     end
 
     # Copy the data in the buffer arrays to the current arrays
