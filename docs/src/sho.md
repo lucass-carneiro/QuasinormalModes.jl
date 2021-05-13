@@ -98,8 +98,8 @@ Here we are setting up problems to be solved using 10 iterations with `x0 = 0.5`
 Once again we compute the eigenvalues by calling
 
 ```julia
-ev_ana = computeEigenvalues(p_ana, c_ana)
-ev_num = eigenvaluesInGrid(p_num, c_num, (0.0, 21.0))
+ev_ana = computeEigenvalues(Serial(), p_ana, c_ana)
+ev_num = eigenvaluesInGrid(Serial(), p_num, c_num, (0.0, 21.0))
 ```
 
 The results are two arrays, containing the eigenvalues. As before, we define a function to print the results to `stdout`

@@ -65,8 +65,8 @@ c_num = AIMCache(p_num)
 # 4. Computing quasinormal modes
 # ------------------------------------------------------------------
 
-ev_ana = computeEigenvalues(p_ana, c_ana)
-ev_num = eigenvaluesInGrid(p_num, c_num, (0.0, 21.0))
+ev_ana = computeEigenvalues(Serial(), p_ana, c_ana)
+ev_num = eigenvaluesInGrid(Serial(), p_num, c_num, (0.0, 21.0))
 
 function printEigen(eigenvalues)
     println("--------------------------------------")

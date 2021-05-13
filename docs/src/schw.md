@@ -133,10 +133,10 @@ To compute eigenvalues, 3 functions are provided:
 
 Depending on the problem type, these functions return and behave differently. In a `QuadraticEigenvalueProblem` for instance, `computeDelta!` returns a polynomial whose roots are the eigenvalues of the ODE. In a `NumericAIMProblem` it returns a value of the quantization condition at a given point, which means that in this case it behaves as a numerical function that can be used with an external root finding algorithm. To see the behaviour of these functions with each problem type I suggest reading the [API Reference](api_ref.md) where specific descriptions can be found. 
 
-First, we will call `computeEigenvalues(p_ana, c_ana)`. This returns an array with all the roots of the quantization condition. We will sort the array by descending order in the imaginary part and after that we will filter the array to remove entries whose real part is too small or with a positive imaginary part and print the result to `stdout`:
+First, we will call `computeEigenvalues(Serial(), p_ana, c_ana)` (or `computeEigenvalues(Threaded(), p_ana, c_ana)` if you wish, but don't forget to start julia with the `--threads` option). This returns an array with all the roots of the quantization condition. We will sort the array by descending order in the imaginary part and after that we will filter the array to remove entries whose real part is too small or with a positive imaginary part and print the result to `stdout`:
 
 ```julia
-m_ana = computeEigenvalues(p_ana, c_ana)
+m_ana = computeEigenvalues(Serial(), p_ana, c_ana)
 
 function printQNMs(qnms, cutoff, instab)
     println("-"^165)
@@ -163,7 +163,7 @@ Note that not all values are actually eigenvalues of the ODE (that is, quasinorm
 Next we will call
 
 ```julia
-ev = computeEigenvalues(p_num, c_num, Complex(0.22, -0.20), nls_xtol = 1.0e-10, nls_ftol = 1.0e-10)
+ev = computeEigenvalues(Serial(), p_num, c_num, Complex(0.22, -0.20), nls_xtol = 1.0e-10, nls_ftol = 1.0e-10)
 ```
 
 The variable `ev` now contains a `SolverResults` object from the [NLsolve.jl](https://github.com/JuliaNLSolvers/NLsolve.jl) package. The first solution element represents the real part of the computed mode while the second represents the imaginary part. The object also contains information about the convergence of the method. Note that with a numerical problem we can only find one mode at a time using a certain initial guess. This can be somewhat remedied by using `eigenvaluesInGrid`, which uses multiple initial conditions as a guess and collects the converged results.

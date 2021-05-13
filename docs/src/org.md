@@ -91,3 +91,10 @@ In the following sections, concrete examples of problems will be illustrated in 
 ## The memory cache
 
 In order to minimize memory allocations, all functions that actually compute eigenvalues require a `AIMCache` object. Given a certain a problem `P{N,T}` it initializes memory for 8 arrays of size `get_niter(p) + one(N)` elements of type `T`. These arrays are used to store intermediate and final computation results. By using a cache object, we guarantee that memory for the computation data is allocated only once and not at each step of the AIM.
+
+## Stepping methods
+
+In order to compute ``\delta_n``, `QuasinormalModes.jl` evolves ``\lambda_0`` and ``s_0`` according to the previously stated equations. The evolution from step 1 to step ``n`` must happen sequentially but the step itself, that is, the computation of new values of ``\lambda`` and ``s`` from old ones can be performed in parallel. We've provided singleton types that allow the user to control this behaviour by passing instances of those types to the eigenvalue computing functions. The user can currently choose the following stepping methods:
+
+1. `Serial`: Each instruction in a single AIM step is executed sequentially.
+2. `Threaded`: Instruction in a single AIM step is executed in parallel using Julia's built-in `Threads.@threads` macro.

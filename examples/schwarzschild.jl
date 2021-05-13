@@ -66,7 +66,7 @@ c_num = AIMCache(p_num)
 # 4. Computing quasinormal modes
 # ------------------------------------------------------------------
 
-m_ana = computeEigenvalues(p_ana, c_ana)
+m_ana = computeEigenvalues(Serial(), p_ana, c_ana)
 
 function printQNMs(qnms, cutoff, instab)
     println("-"^165)
@@ -87,4 +87,4 @@ end
 sort!(m_ana, by = x -> imag(x))
 printQNMs(m_ana, 1.0e-10, false)
 
-ev = computeEigenvalues(p_num, c_num, Complex(0.22, -0.20), nls_xtol = 1.0e-10, nls_ftol = 1.0e-10)
+ev = computeEigenvalues(Serial(), p_num, c_num, Complex(0.22, -0.20), nls_xtol = 1.0e-10, nls_ftol = 1.0e-10)
