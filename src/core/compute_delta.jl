@@ -4,13 +4,14 @@
 Compute and return the AIM "quantization condition".
 
 # Input
+- `m::AIMSteppingMethod`: The stepping method to use.
 - `p::QuadraticEigenvalueProblem`: A quadratic frequency problem.
 - `c::AIMCache`: An AIM cache object created from p.
 
 # Output
 An object of type `Polynomial{T}` whose roots are the problem's eigenvalues.
 """
-function computeDelta!(p::QuadraticEigenvalueProblem{N,T}, c::AIMCache{N,Polynomial{T}}) where {N <: Unsigned, T <: Number}
+function computeDelta!(m::AIMSteppingMethod, p::QuadraticEigenvalueProblem{N,T}, c::AIMCache{N,Polynomial{T}}) where {N <: Unsigned, T <: Number}
     
     if (get_niter(p) + one(N)) != c.size
         error("The provided cache cannot hold data for $(get_niter(p)) AIM iterations.
@@ -23,7 +24,7 @@ function computeDelta!(p::QuadraticEigenvalueProblem{N,T}, c::AIMCache{N,Polynom
 
     # Perform the aim steps
     for i in one(N):get_niter(p)
-        AIMStep!(p, c)
+        AIMStep!(m, p, c)
     end
 
     # Compute and return the AIM "quantization condition"
@@ -31,11 +32,12 @@ function computeDelta!(p::QuadraticEigenvalueProblem{N,T}, c::AIMCache{N,Polynom
 end
 
 """
-    computeDelta!(p::NumericAIMProblem{N,T}, c::AIMCache{N,T}, ω::T) where {N <: Unsigned, T <: Number}
+    computeDelta!(m::AIMSteppingMethod, p::NumericAIMProblem{N,T}, c::AIMCache{N,T}, ω::T) where {N <: Unsigned, T <: Number}
 
 Compute and return the AIM "quantization condition".
 
 # Input
+- `m::AIMSteppingMethod`: The stepping method to use.
 - `p::QuadraticEigenvalueProblem`: A quadratic frequency problem.
 - `c::AIMCache`: An AIM cache object created from p.
 - `ω::T`: Point to evaluate the quantization condition.
@@ -43,7 +45,7 @@ Compute and return the AIM "quantization condition".
 # Output
 An object of type `T` which represents the AIM quantization condition at point ω.
 """
-function computeDelta!(p::NumericAIMProblem{N,T}, c::AIMCache{N,T}, ω::T) where {N <: Unsigned, T <: Number}
+function computeDelta!(m::AIMSteppingMethod, p::NumericAIMProblem{N,T}, c::AIMCache{N,T}, ω::T) where {N <: Unsigned, T <: Number}
     
     if (get_niter(p) + one(N)) != c.size
         error("The provided cache cannot hold data for $(get_niter(p)) AIM iterations.
@@ -59,7 +61,7 @@ function computeDelta!(p::NumericAIMProblem{N,T}, c::AIMCache{N,T}, ω::T) where
 
     # Perform the aim steps
     for i in one(N):get_niter(p)
-        AIMStep!(p, c)
+        AIMStep!(m, p, c)
     end
 
     # Compute and return the AIM "quantization condition" at point ω

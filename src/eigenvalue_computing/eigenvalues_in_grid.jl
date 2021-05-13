@@ -1,5 +1,6 @@
 """
     eigenvaluesInGrid(
+        m::AIMSteppingMethod,
         p::NumericAIMProblem{N,T},
         c::AIMCache{N,T},
         grid::Tuple{T,T,Int64,Int64};
@@ -11,6 +12,7 @@
 Attempts to find eigenvalues using a grid of complex plane data points as initial guesses passed to nlsolve.
 
 # Input
+- `m::AIMSteppingMethod`: The stepping method to use.
 - `p::NumericAIMProblem{N,T}`: The previously defined problem data.
 - `c::AIMCache{N,T}`: The cache constructed from p.
 - `grid::Tuple{T,T,Int64,Int64}`: A tuple consisting of (start point, end point, num. of real pts., num. of imag. pots.).
@@ -22,6 +24,7 @@ Attempts to find eigenvalues using a grid of complex plane data points as initia
 An object of type `Array{T,1}` containing the modes found within the grid.
 """
 function eigenvaluesInGrid(
+    m::AIMSteppingMethod,
     p::NumericAIMProblem{N,T},
     c::AIMCache{N,T},
     grid::Tuple{T,T,Int64,Int64};
@@ -59,6 +62,7 @@ function eigenvaluesInGrid(
         for imagPart in im_range
             # Compute the solution, if any
             sol = computeEigenvalues(
+                m,
                 p,
                 c,
                 T(realPart, imagPart),
@@ -79,6 +83,7 @@ end
 
 """
     eigenvaluesInGrid(
+        m::AIMSteppingMethod,
         p::NumericAIMProblem{N,T},
         c::AIMCache{N,T},
         grid::Tuple{T,T};
@@ -94,6 +99,7 @@ Attempts to find eigenvalues using a range of real data points as a search regio
 For details on convergence settings see [Roots.jl](https://juliahub.com/docs/Roots/o0Xsi/1.0.7/reference/#Convergence).
 
 # Input
+- `m::AIMSteppingMethod`: The stepping method to use.
 - `p::NumericAIMProblem{N,T}`: The previously defined problem data.
 - `c::AIMCache{N,T}`: The cache constructed from p.
 - `grid::Tuple{T,T}`: A tuple consisting of (start point, end point).
@@ -107,7 +113,8 @@ For details on convergence settings see [Roots.jl](https://juliahub.com/docs/Roo
 # Output
 An object of type `Array{T,1}` containing the eigenvalues found within the grid.
 """
-function eigenvaluesInGrid(    
+function eigenvaluesInGrid(
+    m::AIMSteppingMethod,
     p::NumericAIMProblem{N,T},
     c::AIMCache{N,T},
     grid::Tuple{T,T};
@@ -125,7 +132,7 @@ function eigenvaluesInGrid(
 
     try
         find_zeros(
-            x -> computeDelta!(p, c, x),
+            x -> computeDelta!(m, p, c, x),
             grid[1],
             grid[2],
             atol = roots_atol,

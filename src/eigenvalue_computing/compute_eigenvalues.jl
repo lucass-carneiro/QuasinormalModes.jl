@@ -1,5 +1,6 @@
 """
     computeEigenvalues(
+        m::AIMSteppingMethod,
         p::QuadraticEigenvalueProblem{N,T},
         c::AIMCache{N,Polynomial{T}};
         plr_polish::Bool = true, 
@@ -9,6 +10,7 @@
 Compute the eigenvalues for the problem `p` with corresponding cache `c`.
 
 # Input
+- `m::AIMSteppingMethod`: The stepping method to use.
 - `p::QuadraticEigenvalueProblem`: The previously defined problem data.
 - `c::AIMCache`: The cache constructed from p.
 - `plr_polish::Bool`: Tell PolynomialRoots to divide the original polynomial by each root found and polish the results using the full polynomial.
@@ -18,6 +20,7 @@ Compute the eigenvalues for the problem `p` with corresponding cache `c`.
 An object of type `Array{T,1}` containing the computed eigenvalues.
 """
 function computeEigenvalues(
+    m::AIMSteppingMethod,
     p::QuadraticEigenvalueProblem{N,T},
     c::AIMCache{N,Polynomial{T}};
     plr_polish::Bool = true, 
@@ -25,7 +28,7 @@ function computeEigenvalues(
     ) where {N <: Unsigned, T <: Number}
     
     # Compute the AIM "quantization condition"
-    δ = computeDelta!(p, c)
+    δ = computeDelta!(m, p, c)
 
     # Solve the quantization condition to obtain the eigenvalues
     eigenvalues = PolynomialRoots.roots(coeffs(δ), polish = plr_polish, epsilon = plr_epsilon)
@@ -39,6 +42,7 @@ end
 
 """
     computeEigenvalues(
+        m::AIMSteppingMethod,
         p::NumericAIMProblem{N,T},
         c::AIMCache{N,T},
         guess::T;
@@ -50,6 +54,7 @@ end
 Compute a single eigenvalue for the problem `p` with corresponding cache `c`.
 
 # Input
+- `m::AIMSteppingMethod`: The stepping method to use.
 - `p::NumericAIMProblem`: The previously defined problem data.
 - `c::AIMCache`: The cache constructed from p.
 - `nls_xtol::Real`: Norm difference in x between two successive iterates under which convergence is declared.
@@ -60,6 +65,7 @@ Compute a single eigenvalue for the problem `p` with corresponding cache `c`.
 An object of type `SolverResults` returned by `nlsolve`. See [NLsolve.jl](https://github.com/JuliaNLSolvers/NLsolve.jl) for further details.
 """
 function computeEigenvalues(
+    m::AIMSteppingMethod,
     p::NumericAIMProblem{N,T},
     c::AIMCache{N,T},
     guess::T;
@@ -70,7 +76,7 @@ function computeEigenvalues(
 
     # This function is passed to NLsolve to find the roots of δ
     function f!(F, x)
-        y = computeDelta!(p, c, Complex(x[1], x[2]))
+        y = computeDelta!(m, p, c, Complex(x[1], x[2]))
         F[1] = real(y)
         F[2] = imag(y)
     end
@@ -81,6 +87,7 @@ end
 
 """
     computeEigenvalues(
+        m::AIMSteppingMethod,
         p::NumericAIMProblem{N,T},
         c::AIMCache{N,T},
         guess::T;
@@ -96,6 +103,7 @@ Compute a single eigenvalue for the problem `p` with corresponding cache `c`.
 For details on convergence settings see [Roots.jl](https://juliahub.com/docs/Roots/o0Xsi/1.0.7/reference/#Convergence).
 
 # Input
+- `m::AIMSteppingMethod`: The stepping method to use.
 - `p::NumericAIMProblem{N,T}`: The previously defined problem data.
 - `c::AIMCache{N,T}`: The cache constructed from p.
 - `grid::Tuple{T,T}`: A tuple consisting of (start point, end point).
@@ -109,6 +117,7 @@ For details on convergence settings see [Roots.jl](https://juliahub.com/docs/Roo
 An object of type T containing the found eigenvalue.
 """
 function computeEigenvalues(
+    m::AIMSteppingMethod,
     p::NumericAIMProblem{N,T},
     c::AIMCache{N,T},
     guess::T;
@@ -122,7 +131,7 @@ function computeEigenvalues(
 
     try
         find_zero(
-            x -> computeDelta!(p, c, x),
+            x -> computeDelta!(m, p, c, x),
             guess,
             atol = roots_atol,
             rtol = roots_rtol,

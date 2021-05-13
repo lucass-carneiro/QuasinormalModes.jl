@@ -38,6 +38,10 @@ export QuadraticEigenvalueProblem
 # --- Extra (concrete) types ---
 export AIMCache
 
+# --- Steping methods (singleton types) ---
+export Serial
+export Threaded
+
 # --- Mandatory methods ---
 export λ0, S0, get_niter, get_x0
 export get_ODEvar, get_ODEeigen
@@ -150,7 +154,26 @@ get_ODEeigen(::IsAnalytic, x) = error("Please implement a get_ODEeigen function 
 get_ODEeigen(::IsNumeric, x) = error("Numeric problem", typeof(x), "cannot implement get_ODEeigen")
 
 # ------------------------------------------------------------------
-# 5. Includes
+# 5. AIM stepping methods
+# ------------------------------------------------------------------
+
+"""
+Super-type of all stepping methods used internally by the AIM.
+"""
+abstract type AIMSteppingMethod end
+
+"""
+Perform all AIM steps sequentially
+"""
+struct Serial <: AIMSteppingMethod end
+
+"""
+Perform all AIM steps in parallel using threads
+"""
+struct Threaded <: AIMSteppingMethod end
+
+# ------------------------------------------------------------------
+# 6. Includes
 # ------------------------------------------------------------------
 
 # --- Include core functionality ---
