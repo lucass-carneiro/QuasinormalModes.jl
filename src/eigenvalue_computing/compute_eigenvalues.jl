@@ -23,15 +23,15 @@ function computeEigenvalues(
     m::AIMSteppingMethod,
     p::QuadraticEigenvalueProblem{N,T},
     c::AIMCache{N,Polynomial{T}};
-    plr_polish::Bool = true, 
-    plr_epsilon::Real = 1.0e-10
-    ) where {N <: Unsigned, T <: Number}
+    plr_polish::Bool=true, 
+    plr_epsilon::Real=1.0e-10
+    ) where {N <: Unsigned,T <: Number}
     
     # Compute the AIM "quantization condition"
     δ = computeDelta!(m, p, c)
 
     # Solve the quantization condition to obtain the eigenvalues
-    eigenvalues = PolynomialRoots.roots(coeffs(δ), polish = plr_polish, epsilon = plr_epsilon)
+    eigenvalues = PolynomialRoots.roots(coeffs(δ), polish=plr_polish, epsilon=plr_epsilon)
     
     if isempty(eigenvalues)
         println("Warning: The computed mode array is empty. This means that no roots of the polynomial equation in ω were found.")
@@ -69,10 +69,10 @@ function computeEigenvalues(
     p::NumericAIMProblem{N,T},
     c::AIMCache{N,T},
     guess::T;
-    nls_xtol::Real = 1.0e-10,
-    nls_ftol::Real = 1.0e-10,
-    nls_iterations::Int = 1000
-    ) where {N <: Unsigned, T <: Complex}
+    nls_xtol::Real=1.0e-10,
+    nls_ftol::Real=1.0e-10,
+    nls_iterations::Int=1000
+    ) where {N <: Unsigned,T <: Complex}
 
     # This function is passed to NLsolve to find the roots of δ
     function f!(F, x)
@@ -95,8 +95,7 @@ end
         roots_rtol::Real = 1.0e-10,
         roots_xatol::Real = 1.0e-10,
         roots_xrtol::Real = 1.0e-10,
-        roots_maxevals::Int = 100,
-        roots_maxfnevals::Int = 100,
+        roots_maxevals::Int = 100
         ) where {N <: Unsigned, T <: Real}
 
 Compute a single eigenvalue for the problem `p` with corresponding cache `c`.
@@ -112,7 +111,7 @@ For details on convergence settings see [Roots.jl](https://juliahub.com/docs/Roo
 - `roots_xatol::Real`: Floating point comparison absolute tolerance.
 - `roots_xrtol::Real`: Floating point comparison relative tolerance.
 - `roots_maxevals::Int`: Number of algorithm iterations performed.
-- `roots_maxfnevals::Int`:Number of function evaluations performed.
+
 # Output
 An object of type T containing the found eigenvalue.
 """
@@ -121,24 +120,22 @@ function computeEigenvalues(
     p::NumericAIMProblem{N,T},
     c::AIMCache{N,T},
     guess::T;
-    roots_atol::Real = 1.0e-10,
-    roots_rtol::Real = 1.0e-10,
-    roots_xatol::Real = 1.0e-10,
-    roots_xrtol::Real = 1.0e-10,
-    roots_maxevals::Int = 100,
-    roots_maxfnevals::Int = 100,
-    ) where {N <: Unsigned, T <: Real}
+    roots_atol::Real=1.0e-10,
+    roots_rtol::Real=1.0e-10,
+    roots_xatol::Real=1.0e-10,
+    roots_xrtol::Real=1.0e-10,
+    roots_maxevals::Int=100
+    ) where {N <: Unsigned,T <: Real}
 
     try
         find_zero(
             x -> computeDelta!(m, p, c, x),
             guess,
-            atol = roots_atol,
-            rtol = roots_rtol,
-            xatol = roots_xatol,
-            xrtol = roots_xrtol,
-            maxevals = roots_maxevals,
-            maxfnevals = roots_maxfnevals
+            atol=roots_atol,
+            rtol=roots_rtol,
+            xatol=roots_xatol,
+            xrtol=roots_xrtol,
+            maxevals=roots_maxevals
             )
     catch
         println("find_zeros was unable to converge to an eigenvalue")
