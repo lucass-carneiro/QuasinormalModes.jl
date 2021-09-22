@@ -4,7 +4,8 @@ This is a [Julia](http://julialang.org) package whose primary objective is to co
 
 To compute eigenvalues (and thus quasinormal frequencies) this package uses the Asymptotic Iteration Method (AIM) [[2]](https://arxiv.org/abs/math-ph/0309066v1), more specifically the "improved" version of the AIM as described in [[3]](https://arxiv.org/abs/1111.5024). The AIM can be used to find the eigenvectors and eigenvalues of any second order differential equation (the class of problems with which the quasinormal modes belong) and thus this package can be used not only in the context of General Relativity but can also be used to find the discrete eigenvalues of other systems such as the eigenenergies of a quantum system described by the time independent Schrödinger equation.
 
-[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://lucass-carneiro.github.io/QuasinormalModes.jl/)
+[![Docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://lucass-carneiro.github.io/QuasinormalModes.jl/)
+![Build Status](https://github.com/lucass-carneiro/QuasinormalModes.jl/actions/workflows/CI/badge.svg)
 
 # Author
 [Lucas T. Sanches](lucas.t@ufabc.edu.br), Centro de Ciências Naturais e Humanas, Universidade Federal do ABC (UFABC).
