@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Complete Example: The Harmonic Oscilator · QuasinormalModes.jl</title><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../"><img src="../assets/logo.svg" alt="QuasinormalModes.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../">QuasinormalModes.jl</a></span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Table of Contents</a></li><li><a class="tocitem" href="../intro/">Introduction</a></li><li><a class="tocitem" href="../org/">Package organization</a></li><li><a class="tocitem" href="../schw/">Complete Example: Schwarzschild Quasinormal Modes</a></li><li class="is-active"><a class="tocitem" href>Complete Example: The Harmonic Oscilator</a><ul class="internal"><li class="toplevel"><a class="tocitem" href="#Mathematical-preliminaries"><span>Mathematical preliminaries</span></a></li><li class="toplevel"><a class="tocitem" href="#Implementing-the-master-equation-as-an-analytic-problem"><span>Implementing the master equation as an analytic problem</span></a></li><li class="toplevel"><a class="tocitem" href="#Implementing-the-master-equation-as-a-numeric-problem"><span>Implementing the master equation as a numeric problem</span></a></li><li class="toplevel"><a class="tocitem" href="#Constructing-problems-and-initializing-the-cache"><span>Constructing problems and initializing the cache</span></a></li><li class="toplevel"><a class="tocitem" href="#Computing-the-eigenvalues"><span>Computing the eigenvalues</span></a></li></ul></li><li><a class="tocitem" href="../api_ref/">API Reference</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Complete Example: The Harmonic Oscilator</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Complete Example: The Harmonic Oscilator</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/lucass-carneiro/QuasinormalModes.jl/blob/master/docs/src/sho.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Complete-Example:-The-Harmonic-Oscilator"><a class="docs-heading-anchor" href="#Complete-Example:-The-Harmonic-Oscilator">Complete Example: The Harmonic Oscilator</a><a id="Complete-Example:-The-Harmonic-Oscilator-1"></a><a class="docs-heading-anchor-permalink" href="#Complete-Example:-The-Harmonic-Oscilator" title="Permalink"></a></h1><p>We will now turn away from general relativity and use <code>QuasinormalModes.jl</code> to compute to compute the energy eigenvalues of the quantum harmonic oscillator following <a href="https://arxiv.org/abs/1111.5024">this paper</a>.</p><h1 id="Mathematical-preliminaries"><a class="docs-heading-anchor" href="#Mathematical-preliminaries">Mathematical preliminaries</a><a id="Mathematical-preliminaries-1"></a><a class="docs-heading-anchor-permalink" href="#Mathematical-preliminaries" title="Permalink"></a></h1><p>If we measure the energy of the system in units of <span>$\hbar\omega$</span> and distance in units of <span>$\sqrt{\hbar/(m\omega)}$</span> the time independent Schrödinger equation for the quantum harmonic oscilator is written as</p><p class="math-container">\[-\psi^{\prime\prime}(x) + x^2\psi(x) = \epsilon\psi(x),\]</p><p>where we defined <span>$\epsilon \equiv 2 E$</span> and <span>$E$</span> is the quantum state&#39;s energy. Imposing that <span>$\psi(x)$</span> decays like a Gaussian distribution asymptotically, we apply the ansatz</p><p class="math-container">\[\psi(x) = e^{-x^2/2}f(x)\]</p><p>which, substituting in the original equation, yields</p><p class="math-container">\[f^{\prime\prime}(x) = 2 x f^\prime(x) + (1-\epsilon)f(x).\]</p><p>This allows us to easily identify <span>$\lambda_0 = 2x$</span> and <span>$s_0 = 1 - \epsilon$</span>. In all our implementations we shall refer the sought eigenvalue <span>$\epsilon$</span> using the variable <code>ω</code> in order to maintain consistency with the previous example.</p><h1 id="Implementing-the-master-equation-as-an-analytic-problem"><a class="docs-heading-anchor" href="#Implementing-the-master-equation-as-an-analytic-problem">Implementing the master equation as an analytic problem</a><a id="Implementing-the-master-equation-as-an-analytic-problem-1"></a><a class="docs-heading-anchor-permalink" href="#Implementing-the-master-equation-as-an-analytic-problem" title="Permalink"></a></h1><p>In this section we will assume that the user has installed and loaded the <code>SymEngine</code> package. The first step is to create a parametric type that sub-types <code>AnalyticAIMProblem</code>. As the eigenvalue in the master equation is a quadratic polynomial, we will sub-type <code>QuadraticEigenvalueProblem</code> with the following structure:</p><pre><code class="language-julia hljs">struct HarmonicOscilatorData{N,T} &lt;: QuadraticEigenvalueProblem{N,T}
+    nIter::N
+    x0::T
+
+    vars::Tuple{Basic, Basic}
+    exprs::Tuple{Basic, Basic}
+end</code></pre><p>Now we implement the constructor and extend the default implementations:</p><pre><code class="language-julia hljs">function HarmonicOscilatorData(nIter::N, x0::T) where {N,T}
+	
+    vars = @vars x ω
+
+    λ0 = 2*x
+    S0 = 1 - ω
+
+    return HarmonicOscilatorData{N,T}(nIter, x0, vars, (λ0, S0))
+end
+
+QuasinormalModes.λ0(d::HarmonicOscilatorData{N,T}) where {N,T} = d.exprs[1]
+QuasinormalModes.S0(d::HarmonicOscilatorData{N,T}) where {N,T}  = d.exprs[2]
+
+QuasinormalModes.get_niter(d::HarmonicOscilatorData{N,T}) where {N,T} = d.nIter
+QuasinormalModes.get_x0(d::HarmonicOscilatorData{N,T}) where {N,T} = d.x0
+
+QuasinormalModes.get_ODEvar(d::HarmonicOscilatorData{N,T}) where {N,T} = d.vars[1]
+QuasinormalModes.get_ODEeigen(d::HarmonicOscilatorData{N,T}) where {N,T} = d.vars[2]</code></pre><h1 id="Implementing-the-master-equation-as-a-numeric-problem"><a class="docs-heading-anchor" href="#Implementing-the-master-equation-as-a-numeric-problem">Implementing the master equation as a numeric problem</a><a id="Implementing-the-master-equation-as-a-numeric-problem-1"></a><a class="docs-heading-anchor-permalink" href="#Implementing-the-master-equation-as-a-numeric-problem" title="Permalink"></a></h1><p>The structure, constructor and extensions are</p><pre><code class="nohighlight hljs">struct NHarmonicOscilatorData{N,T} &lt;: NumericAIMProblem{N,T}
+    nIter::N
+    x0::T
+end
+
+function NHarmonicOscilatorData(nIter::N, x0::T) where {N,T}
+    return NHarmonicOscilatorData{N,T}(nIter, x0)
+end
+
+QuasinormalModes.λ0(::NHarmonicOscilatorData{N,T}) where {N,T} = (x,ω) -&gt; 2*x
+QuasinormalModes.S0(::NHarmonicOscilatorData{N,T}) where {N,T} = (x,ω) -&gt; 1 - ω + x - x
+
+QuasinormalModes.get_niter(d::NHarmonicOscilatorData{N,T}) where {N,T} = d.nIter
+QuasinormalModes.get_x0(d::NHarmonicOscilatorData{N,T}) where {N,T} = d.x0</code></pre><h1 id="Constructing-problems-and-initializing-the-cache"><a class="docs-heading-anchor" href="#Constructing-problems-and-initializing-the-cache">Constructing problems and initializing the cache</a><a id="Constructing-problems-and-initializing-the-cache-1"></a><a class="docs-heading-anchor-permalink" href="#Constructing-problems-and-initializing-the-cache" title="Permalink"></a></h1><p>Once again, we create our problems and cache objects by calling the constructors:</p><pre><code class="language-julia hljs">p_ana = HarmonicOscilatorData(0x0000A, 0.5);
+p_num = NHarmonicOscilatorData(0x0000A, 0.5);
+
+c_ana = AIMCache(p_ana)
+c_num = AIMCache(p_num)</code></pre><p>Here we are setting up problems to be solved using 10 iterations with <code>x0 = 0.5</code></p><h1 id="Computing-the-eigenvalues"><a class="docs-heading-anchor" href="#Computing-the-eigenvalues">Computing the eigenvalues</a><a id="Computing-the-eigenvalues-1"></a><a class="docs-heading-anchor-permalink" href="#Computing-the-eigenvalues" title="Permalink"></a></h1><p>Once again we compute the eigenvalues by calling</p><pre><code class="language-julia hljs">ev_ana = computeEigenvalues(Serial(), p_ana, c_ana)
+ev_num = eigenvaluesInGrid(Serial(), p_num, c_num, (0.0, 21.0))</code></pre><p>The results are two arrays, containing the eigenvalues. As before, we define a function to print the results to <code>stdout</code></p><pre><code class="language-julia hljs">function printEigen(eigenvalues)
+    println(&quot;--------------------------------------&quot;)
+
+    for i in eachindex(eigenvalues)
+        println(&quot;n = $i, ω = $(eigenvalues[i])&quot;)
+    end
+    
+    println(&quot;--------------------------------------&quot;)
+
+    return nothing
+end
+
+println(&quot;Analytic results&quot;)
+printEigen(reverse!(ev_ana))
+
+println(&quot;Numeric results&quot;)
+printEigen(ev_num)</code></pre><p>The complete source file for this example can be found in <a href="https://github.com/lucass-carneiro/QuasinormalModes.jl/blob/master/examples/harmonic_oscilator.jl">harmonic_oscilator.jl</a>. The output is agreement with the expected result for the eigenenergies of the harmonic oscillator, that is, <span>$E_n = n + 1/2$</span></p><pre><code class="nohighlight hljs">Analytic results
+--------------------------------------
+n = 1, ω = 0.9999999999999999 + 0.0im
+n = 2, ω = 2.9999999999999964 + 0.0im
+n = 3, ω = 4.999999999999426 + 0.0im
+n = 4, ω = 7.000000000006788 + 0.0im
+n = 5, ω = 8.999999999980533 + 0.0im
+n = 6, ω = 10.999999804542819 + 0.0im
+n = 7, ω = 13.000000959453153 + 0.0im
+n = 8, ω = 14.999998108295404 + 0.0im
+n = 9, ω = 17.00000187312756 + 0.0im
+n = 10, ω = 18.999999068409203 - 0.0im
+n = 11, ω = 21.000000186185098 + 0.0im
+--------------------------------------
+Numeric results
+--------------------------------------
+n = 1, ω = 1.0
+n = 2, ω = 3.000000000000006
+n = 3, ω = 5.000000000000002
+n = 4, ω = 7.000000000000006
+n = 5, ω = 8.999999999999988
+n = 6, ω = 11.0
+n = 7, ω = 12.999999999999977
+n = 8, ω = 15.000000000000014
+n = 9, ω = 16.999999999999908
+n = 10, ω = 19.000000000000025
+n = 11, ω = 21.0
+--------------------------------------</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../schw/">« Complete Example: Schwarzschild Quasinormal Modes</a><a class="docs-footer-nextpage" href="../api_ref/">API Reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.6 on <span class="colophon-date" title="Wednesday 22 September 2021 01:55">Wednesday 22 September 2021</span>. Using Julia version 1.6.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
