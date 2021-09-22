@@ -6,6 +6,7 @@ To compute eigenvalues (and thus quasinormal frequencies) this package uses the 
 
 [![Docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://lucass-carneiro.github.io/QuasinormalModes.jl/)
 ![Build Status](https://github.com/lucass-carneiro/QuasinormalModes.jl/actions/workflows/CI.yml/badge.svg)
+[![codecov](https://codecov.io/gh/lucass-carneiro/QuasinormalModes.jl/branch/master/graph/badge.svg?token=GK9052NQK2)](https://codecov.io/gh/lucass-carneiro/QuasinormalModes.jl)
 
 # Author
 [Lucas T. Sanches](lucas.t@ufabc.edu.br), Centro de Ciências Naturais e Humanas, Universidade Federal do ABC (UFABC).
