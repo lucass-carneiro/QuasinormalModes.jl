@@ -26,5 +26,6 @@ makedocs(sitename="QuasinormalModes.jl",
 deploydocs(
     repo="github.com/lucass-carneiro/QuasinormalModes.jl.git",
     target="build",
-    push_preview=true,
+    devurl="./",
+    push_preview=false,
 )
