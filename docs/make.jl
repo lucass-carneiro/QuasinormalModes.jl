@@ -1,13 +1,15 @@
 if !("./" in LOAD_PATH)
     push!(LOAD_PATH, "./")
 end
+using Pkg
+Pkg.add("Documenter")
 
 using Documenter
 using QuasinormalModes
 
 makedocs(sitename="QuasinormalModes.jl",
-         modules = [QuasinormalModes],
-         pages = [
+         modules=[QuasinormalModes],
+         pages=[
              "index.md",
              "intro.md",
              "org.md",
