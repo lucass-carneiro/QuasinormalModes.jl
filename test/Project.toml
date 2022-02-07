@@ -1,0 +1,4 @@
+[deps]
+SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
+SymEngine = "123dc426-2d89-5057-bbad-38513e3affd8"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
