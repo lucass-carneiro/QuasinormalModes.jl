@@ -24,7 +24,14 @@ This allows us to easily identify ``\lambda_0 = 2x`` and ``s_0 = 1 - \epsilon``.
 
 # Implementing the master equation as an analytic problem
 
-In this section we will assume that the user has installed and loaded the `SymEngine` package. The first step is to create a parametric type that sub-types `AnalyticAIMProblem`. As the eigenvalue in the master equation is a quadratic polynomial, we will sub-type `QuadraticEigenvalueProblem` with the following structure:
+The first step is to load the required packages to run this example: `QuasinormalModes` and `SymEngine`:
+
+```julia
+using QuasinormalModes
+using SymEngine
+```
+
+Next, we create a parametric type that sub-types `AnalyticAIMProblem`. As the eigenvalue in the master equation is a quadratic polynomial, we will sub-type `QuadraticEigenvalueProblem` with the following structure:
 
 ```julia
 struct HarmonicOscilatorData{N,T} <: QuadraticEigenvalueProblem{N,T}
@@ -62,7 +69,7 @@ QuasinormalModes.get_ODEeigen(d::HarmonicOscilatorData{N,T}) where {N,T} = d.var
 
 The structure, constructor and extensions are
 
-```
+```julia
 struct NHarmonicOscilatorData{N,T} <: NumericAIMProblem{N,T}
     nIter::N
     x0::T

@@ -34,7 +34,14 @@ which implies that when ``r=1`` we have ``x=0`` and when ``r\rightarrow\infty`` 
 
 # Implementing the master equation as an analytic problem
 
-In this section we will assume that the user has installed and loaded the `SymEngine` package. The first step is to create a parametric type that sub-types `AnalyticAIMProblem`. As the eigenvalue in the master equation is a quadratic polynomial, we will sub-type `QuadraticEigenvalueProblem` with the following structure:
+The first step is to load the required packages to run this example: `QuasinormalModes` and `SymEngine`:
+
+```julia
+using QuasinormalModes
+using SymEngine
+```
+
+Next, we create a parametric type that sub-types `AnalyticAIMProblem`. As the eigenvalue in the master equation is a quadratic polynomial, we will sub-type `QuadraticEigenvalueProblem` with the following structure:
 
 ```julia
 struct SchwarzschildData{N,T} <: QuadraticEigenvalueProblem{N,T}
@@ -61,7 +68,7 @@ function SchwarzschildData(nIter::N, x0::T, l::N, s::N) where {N,T}
 end
 ```
 
-This constructor can be used by passing the values directly instead of explicitly declaring type parameters. The final step is to extend the default accessors functions to operate on `SchwarzschildData`
+This constructor can be used by passing the values directly instead of explicitly declaring type parameters. The final step is to extend the default accessors functions to operate on `SchwarzschildData`:
 
 ```julia
 QuasinormalModes.λ0(d::SchwarzschildData{N,T}) where {N,T} = d.exprs[1]
@@ -73,7 +80,7 @@ QuasinormalModes.get_x0(d::SchwarzschildData{N,T}) where {N,T} = d.x0
 QuasinormalModes.get_ODEvar(d::SchwarzschildData{N,T}) where {N,T} = d.vars[1]
 QuasinormalModes.get_ODEeigen(d::SchwarzschildData{N,T}) where {N,T} = d.vars[2]
 ```
-These functions are fairly straightforward and accessors and require no additional comment.
+These functions are fairly straightforward accessors and require no additional comment.
 
 # Implementing the master equation as a numeric problem
 
@@ -90,7 +97,7 @@ end
 
 Here `nIter` and `x0` have the same meaning as before, but now instead of storing symbolic variables and expressions we store two additional unsigned integers, `l` and `s`. These are the angular and spin parameters of the master equation. Here we must store them in the struct as they can't be "embedded" into the expressions for `λ0` and `S0` as in the analytic case.
 
-We proceed once again by creating a more convenient constructor. This time no intermediate computation is required upon the construction:
+We proceed once again by creating a more convenient constructor. This time no intermediate computation is required upon construction:
 
 ```julia
 function NSchwarzschildData(nIter::N, x0::T, l::N, s::N) where {N,T}
@@ -115,7 +122,7 @@ This time `λ0` and `S0` return two parameters lambda functions that will be cal
 We create our problems and cache objects by calling the constructors:
 
 ```julia
-p_ana = SchwarzschildData(0x00030, Complex(0.43, 0.0), 0x00000, 0x00000);
+p_ana = SchwarzschildData(0x00030, Complex(BigFloat("0.43"), BigFloat("0.0")), 0x00000, 0x00000);
 p_num = NSchwarzschildData(0x00030, Complex(0.43, 0.0), 0x00000, 0x00000);
 
 c_ana = AIMCache(p_ana)
@@ -131,7 +138,7 @@ To compute eigenvalues, 3 functions are provided:
 2. `computeEigenvalues`: Compute a single, or a list of eigenvalues.
 3. `eigenvaluesInGrid`: Find all eigenvalues in a certain numerical grid.
 
-Depending on the problem type, these functions return and behave differently. In a `QuadraticEigenvalueProblem` for instance, `computeDelta!` returns a polynomial whose roots are the eigenvalues of the ODE. In a `NumericAIMProblem` it returns a value of the quantization condition at a given point, which means that in this case it behaves as a numerical function that can be used with an external root finding algorithm. To see the behaviour of these functions with each problem type I suggest reading the [API Reference](api_ref.md) where specific descriptions can be found. 
+Depending on the problem type, these functions return and behave differently. In a `QuadraticEigenvalueProblem` for instance, `computeDelta!` returns a polynomial whose roots are the eigenvalues of the ODE. In a `NumericAIMProblem` it returns a value of the quantization condition at a given point, which means that in this case it behaves as a numerical function that can be used with an external root finding algorithm. To see the behaviour of these functions with each problem type refer to the the [API Reference](api_ref.md) where specific descriptions can be found. 
 
 First, we will call `computeEigenvalues(Serial(), p_ana, c_ana)` (or `computeEigenvalues(Threaded(), p_ana, c_ana)` if you wish, but don't forget to start julia with the `--threads` option). This returns an array with all the roots of the quantization condition. We will sort the array by descending order in the imaginary part and after that we will filter the array to remove entries whose real part is too small or with a positive imaginary part and print the result to `stdout`:
 
