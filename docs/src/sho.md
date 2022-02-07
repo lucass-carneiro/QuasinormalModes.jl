@@ -1,10 +1,10 @@
-# Complete Example: The Harmonic Oscilator
+# Complete Example: The Harmonic Oscillator
 
 We will now turn away from general relativity and use `QuasinormalModes.jl` to compute to compute the energy eigenvalues of the quantum harmonic oscillator following [this paper](https://arxiv.org/abs/1111.5024).
 
 # Mathematical preliminaries
 
-If we measure the energy of the system in units of ``\hbar\omega`` and distance in units of ``\sqrt{\hbar/(m\omega)}`` the time independent Schrödinger equation for the quantum harmonic oscilator is written as
+If we measure the energy of the system in units of ``\hbar\omega`` and distance in units of ``\sqrt{\hbar/(m\omega)}`` the time independent Schrödinger equation for the quantum harmonic oscillator is written as
 
 ```math
 -\psi^{\prime\prime}(x) + x^2\psi(x) = \epsilon\psi(x),
@@ -131,7 +131,7 @@ println("Numeric results")
 printEigen(ev_num)
 ```
 
-The complete source file for this example can be found in [harmonic_oscilator.jl](https://github.com/lucass-carneiro/QuasinormalModes.jl/blob/master/examples/harmonic_oscilator.jl). The output is agreement with the expected result for the eigenenergies of the harmonic oscillator, that is, ``E_n = n + 1/2``
+The complete source file for this example can be found in [harmonic_oscillator.jl](https://github.com/lucass-carneiro/QuasinormalModes.jl/blob/master/examples/harmonic_oscillator.jl). The output is agreement with the expected result for the eigenenergies of the harmonic oscillator, that is, ``E_n = n + 1/2``
 
 ```
 Analytic results

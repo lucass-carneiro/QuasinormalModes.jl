@@ -3,7 +3,7 @@ using SymEngine
 using Test
 
 # ------------------------------------------------------------------
-# 1. Analytic harmonic oscilator
+# 1. Analytic harmonic oscillator
 # ------------------------------------------------------------------
 
 struct HarmonicOscilatorData{N,T} <: QuadraticEigenvalueProblem{N,T}
@@ -15,7 +15,7 @@ struct HarmonicOscilatorData{N,T} <: QuadraticEigenvalueProblem{N,T}
 end
 
 function HarmonicOscilatorData(nIter::N, x0::T) where {N,T}
-	
+
     vars = @vars x ω
 
     λ0 = 2 * x
@@ -25,7 +25,7 @@ function HarmonicOscilatorData(nIter::N, x0::T) where {N,T}
 end
 
 QuasinormalModes.λ0(d::HarmonicOscilatorData{N,T}) where {N,T} = d.exprs[1]
-QuasinormalModes.S0(d::HarmonicOscilatorData{N,T}) where {N,T}  = d.exprs[2]
+QuasinormalModes.S0(d::HarmonicOscilatorData{N,T}) where {N,T} = d.exprs[2]
 
 QuasinormalModes.get_niter(d::HarmonicOscilatorData{N,T}) where {N,T} = d.nIter
 QuasinormalModes.get_x0(d::HarmonicOscilatorData{N,T}) where {N,T} = d.x0
@@ -34,7 +34,7 @@ QuasinormalModes.get_ODEvar(d::HarmonicOscilatorData{N,T}) where {N,T} = d.vars[
 QuasinormalModes.get_ODEeigen(d::HarmonicOscilatorData{N,T}) where {N,T} = d.vars[2]
 
 # ------------------------------------------------------------------
-# 2. Numeric harmonic oscilator
+# 2. Numeric harmonic oscillator
 # ------------------------------------------------------------------
 
 struct NHarmonicOscilatorData{N,T} <: NumericAIMProblem{N,T}
@@ -57,11 +57,11 @@ QuasinormalModes.get_x0(d::NHarmonicOscilatorData{N,T}) where {N,T} = d.x0
 # ------------------------------------------------------------------
 
 @testset "Serial Numeric correctness - 10 iterations" begin
-    p = NHarmonicOscilatorData(0x0000A, 0.5);
+    p = NHarmonicOscilatorData(0x0000A, 0.5)
     c = AIMCache(p)
     ev = eigenvaluesInGrid(Serial(), p, c, (0.0, 20.0))
     ce = [computeEigenvalues(Serial(), p, c, guess) for guess in 1.0:2.0:19.0]
-    
+
     @test length(ev) == 10
     @test round(ev[1]) == 1
     @test round(ev[2]) == 3
@@ -87,12 +87,12 @@ QuasinormalModes.get_x0(d::NHarmonicOscilatorData{N,T}) where {N,T} = d.x0
     @test round(ce[10]) == 19
 end
 
- @testset "Serial Numeric correctness - 20 iterations" begin
-    p = NHarmonicOscilatorData(0x00014, 0.5);
+@testset "Serial Numeric correctness - 20 iterations" begin
+    p = NHarmonicOscilatorData(0x00014, 0.5)
     c = AIMCache(p)
     ev = eigenvaluesInGrid(Serial(), p, c, (0.0, 20.0))
     ce = [computeEigenvalues(Serial(), p, c, guess) for guess in 1.0:2.0:19.0]
-    
+
     @test length(ev) == 10
     @test round(ev[1]) == 1
     @test round(ev[2]) == 3
@@ -119,11 +119,11 @@ end
 end
 
 @testset "Serial Numeric correctness - 50 iterations" begin
-    p = NHarmonicOscilatorData(0x00032, 0.5);
+    p = NHarmonicOscilatorData(0x00032, 0.5)
     c = AIMCache(p)
     ev = eigenvaluesInGrid(Serial(), p, c, (0.0, 20.0))
     ce = [computeEigenvalues(Serial(), p, c, guess) for guess in 1.0:2.0:19.0]
-    
+
     @test length(ev) == 10
     @test round(ev[1]) == 1
     @test round(ev[2]) == 3
@@ -150,11 +150,11 @@ end
 end
 
 @testset "Serial Numeric correctness - 100 iterations" begin
-    p = NHarmonicOscilatorData(0x00064, 0.5);
+    p = NHarmonicOscilatorData(0x00064, 0.5)
     c = AIMCache(p)
     ev = eigenvaluesInGrid(Serial(), p, c, (0.0, 20.0))
     ce = [computeEigenvalues(Serial(), p, c, guess) for guess in 1.0:2.0:19.0]
-    
+
     @test length(ev) == 10
     @test round(ev[1]) == 1
     @test round(ev[2]) == 3
@@ -181,11 +181,11 @@ end
 end
 
 @testset "Serial Numeric correctness - 25 iterations with BigFloat" begin
-    p = NHarmonicOscilatorData(0x00019, BigFloat("0.5"));
+    p = NHarmonicOscilatorData(0x00019, BigFloat("0.5"))
     c = AIMCache(p)
     ev = eigenvaluesInGrid(Serial(), p, c, (BigFloat("0.0"), BigFloat("20.0")))
     ce = [computeEigenvalues(Serial(), p, c, guess) for guess in BigFloat("1.0"):BigFloat("2.0"):BigFloat("19.0")]
-    
+
     @test length(ev) == 10
     @test round(ev[1]) == 1
     @test round(ev[2]) == 3
@@ -211,61 +211,61 @@ end
     @test round(ce[10]) == 19
 
 end
-    
+
 # ------------------------------------------------------------------
 # 4. Serial Analytic Tests
 # ------------------------------------------------------------------
 
 @testset "Serial Analytic correctness - 10 iterations" begin
-    p = HarmonicOscilatorData(0x0000A, 0.5);
-    c = AIMCache(p);
+    p = HarmonicOscilatorData(0x0000A, 0.5)
+    c = AIMCache(p)
     ev = computeEigenvalues(Serial(), p, c)
-    
+
     @test length(ev) >= 10
     @test round(real(ev[end])) == 1
-    @test round(real(ev[end - 1])) == 3
-    @test round(real(ev[end - 2])) == 5
-    @test round(real(ev[end - 3])) == 7
-    @test round(real(ev[end - 4])) == 9
-    @test round(real(ev[end - 5])) == 11
-    @test round(real(ev[end - 6])) == 13
-    @test round(real(ev[end - 7])) == 15
-    @test round(real(ev[end - 8])) == 17
-    @test round(real(ev[end - 9])) == 19
+    @test round(real(ev[end-1])) == 3
+    @test round(real(ev[end-2])) == 5
+    @test round(real(ev[end-3])) == 7
+    @test round(real(ev[end-4])) == 9
+    @test round(real(ev[end-5])) == 11
+    @test round(real(ev[end-6])) == 13
+    @test round(real(ev[end-7])) == 15
+    @test round(real(ev[end-8])) == 17
+    @test round(real(ev[end-9])) == 19
 end
 
 @testset "Serial Analytic correctness - 20 iterations" begin
-    p = HarmonicOscilatorData(0x00014, 0.5);
-    c = AIMCache(p);
+    p = HarmonicOscilatorData(0x00014, 0.5)
+    c = AIMCache(p)
     ev = computeEigenvalues(Serial(), p, c)
-    
+
     @test length(ev) >= 10
     @test round(real(ev[end])) == 1
-    @test round(real(ev[end - 1])) == 3
-    @test round(real(ev[end - 2])) == 5
-    @test round(real(ev[end - 3])) == 7
-    @test round(real(ev[end - 4])) == 9
-    @test round(real(ev[end - 5])) == 11
-    @test round(real(ev[end - 6])) == 13
-    @test round(real(ev[end - 7])) == 15
-    @test round(real(ev[end - 8])) == 17
-    @test round(real(ev[end - 9])) == 19
+    @test round(real(ev[end-1])) == 3
+    @test round(real(ev[end-2])) == 5
+    @test round(real(ev[end-3])) == 7
+    @test round(real(ev[end-4])) == 9
+    @test round(real(ev[end-5])) == 11
+    @test round(real(ev[end-6])) == 13
+    @test round(real(ev[end-7])) == 15
+    @test round(real(ev[end-8])) == 17
+    @test round(real(ev[end-9])) == 19
 end
 
 @testset "Serial Analytic correctness - 25 iterations with BigFloat" begin
-    p = HarmonicOscilatorData(0x00019, BigFloat("0.5"));
+    p = HarmonicOscilatorData(0x00019, BigFloat("0.5"))
     c = AIMCache(p)
     ev = computeEigenvalues(Serial(), p, c)
-    
+
     @test length(ev) >= 10
     @test round(real(ev[end])) == 1
-    @test round(real(ev[end - 1])) == 3
-    @test round(real(ev[end - 2])) == 5
-    @test round(real(ev[end - 3])) == 7
-    @test round(real(ev[end - 4])) == 9
-    @test round(real(ev[end - 5])) == 11
-    @test round(real(ev[end - 6])) == 13
-    @test round(real(ev[end - 7])) == 15
+    @test round(real(ev[end-1])) == 3
+    @test round(real(ev[end-2])) == 5
+    @test round(real(ev[end-3])) == 7
+    @test round(real(ev[end-4])) == 9
+    @test round(real(ev[end-5])) == 11
+    @test round(real(ev[end-6])) == 13
+    @test round(real(ev[end-7])) == 15
 end
 
 # ------------------------------------------------------------------
@@ -273,11 +273,11 @@ end
 # ------------------------------------------------------------------
 
 @testset "Threaded Numeric correctness - 10 iterations" begin
-    p = NHarmonicOscilatorData(0x0000A, 0.5);
+    p = NHarmonicOscilatorData(0x0000A, 0.5)
     c = AIMCache(p)
     ev = eigenvaluesInGrid(Threaded(), p, c, (0.0, 20.0))
     ce = [computeEigenvalues(Threaded(), p, c, guess) for guess in 1.0:2.0:19.0]
-    
+
     @test length(ev) == 10
     @test round(ev[1]) == 1
     @test round(ev[2]) == 3
@@ -304,11 +304,11 @@ end
 end
 
 @testset "Threaded Numeric correctness - 20 iterations" begin
-    p = NHarmonicOscilatorData(0x00014, 0.5);
+    p = NHarmonicOscilatorData(0x00014, 0.5)
     c = AIMCache(p)
     ev = eigenvaluesInGrid(Threaded(), p, c, (0.0, 20.0))
     ce = [computeEigenvalues(Threaded(), p, c, guess) for guess in 1.0:2.0:19.0]
-    
+
     @test length(ev) == 10
     @test round(ev[1]) == 1
     @test round(ev[2]) == 3
@@ -320,7 +320,7 @@ end
     @test round(ev[8]) == 15
     @test round(ev[9]) == 17
     @test round(ev[10]) == 19
-    
+
     @test length(ce) == 10
     @test round(ce[1]) == 1
     @test round(ce[2]) == 3
@@ -335,11 +335,11 @@ end
 end
 
 @testset "Threaded Numeric correctness - 50 iterations" begin
-    p = NHarmonicOscilatorData(0x00032, 0.5);
+    p = NHarmonicOscilatorData(0x00032, 0.5)
     c = AIMCache(p)
     ev = eigenvaluesInGrid(Threaded(), p, c, (0.0, 20.0))
     ce = [computeEigenvalues(Threaded(), p, c, guess) for guess in 1.0:2.0:19.0]
-    
+
     @test length(ev) == 10
     @test round(ev[1]) == 1
     @test round(ev[2]) == 3
@@ -366,11 +366,11 @@ end
 end
 
 @testset "Threaded Numeric correctness - 100 iterations" begin
-    p = NHarmonicOscilatorData(0x00064, 0.5);
+    p = NHarmonicOscilatorData(0x00064, 0.5)
     c = AIMCache(p)
     ev = eigenvaluesInGrid(Threaded(), p, c, (0.0, 20.0))
     ce = [computeEigenvalues(Threaded(), p, c, guess) for guess in 1.0:2.0:19.0]
-    
+
     @test length(ev) == 10
     @test round(ev[1]) == 1
     @test round(ev[2]) == 3
@@ -397,11 +397,11 @@ end
 end
 
 @testset "Threaded Numeric correctness - 25 iterations with BigFloat" begin
-    p = NHarmonicOscilatorData(0x00019, BigFloat("0.5"));
+    p = NHarmonicOscilatorData(0x00019, BigFloat("0.5"))
     c = AIMCache(p)
     ev = eigenvaluesInGrid(Threaded(), p, c, (big"0.0", big"20.0"))
     ce = [computeEigenvalues(Threaded(), p, c, guess) for guess in BigFloat("1.0"):BigFloat("2.0"):BigFloat("19.0")]
-    
+
     @test length(ev) == 10
     @test round(ev[1]) == 1
     @test round(ev[2]) == 3
@@ -432,53 +432,53 @@ end
 # ------------------------------------------------------------------
 
 @testset "Threaded Analytic correctness - 10 iterations" begin
-    p = HarmonicOscilatorData(0x0000A, 0.5);
-    c = AIMCache(p);
+    p = HarmonicOscilatorData(0x0000A, 0.5)
+    c = AIMCache(p)
     ev = computeEigenvalues(Threaded(), p, c)
-    
+
     @test length(ev) >= 10
     @test round(real(ev[end])) == 1
-    @test round(real(ev[end - 1])) == 3
-    @test round(real(ev[end - 2])) == 5
-    @test round(real(ev[end - 3])) == 7
-    @test round(real(ev[end - 4])) == 9
-    @test round(real(ev[end - 5])) == 11
-    @test round(real(ev[end - 6])) == 13
-    @test round(real(ev[end - 7])) == 15
-    @test round(real(ev[end - 8])) == 17
-    @test round(real(ev[end - 9])) == 19
+    @test round(real(ev[end-1])) == 3
+    @test round(real(ev[end-2])) == 5
+    @test round(real(ev[end-3])) == 7
+    @test round(real(ev[end-4])) == 9
+    @test round(real(ev[end-5])) == 11
+    @test round(real(ev[end-6])) == 13
+    @test round(real(ev[end-7])) == 15
+    @test round(real(ev[end-8])) == 17
+    @test round(real(ev[end-9])) == 19
 end
 
 @testset "Threaded Analytic correctness - 20 iterations" begin
-    p = HarmonicOscilatorData(0x00014, 0.5);
-    c = AIMCache(p);
-    ev = computeEigenvalues(Threaded(), p, c)
-    
-    @test length(ev) >= 10
-    @test round(real(ev[end])) == 1
-    @test round(real(ev[end - 1])) == 3
-    @test round(real(ev[end - 2])) == 5
-    @test round(real(ev[end - 3])) == 7
-    @test round(real(ev[end - 4])) == 9
-    @test round(real(ev[end - 5])) == 11
-    @test round(real(ev[end - 6])) == 13
-    @test round(real(ev[end - 7])) == 15
-    @test round(real(ev[end - 8])) == 17
-    @test round(real(ev[end - 9])) == 19
-    end
-    
-@testset "Threaded Analytic correctness - 25 iterations with BigFloat" begin
-    p = HarmonicOscilatorData(0x00019, BigFloat("0.5"));
+    p = HarmonicOscilatorData(0x00014, 0.5)
     c = AIMCache(p)
     ev = computeEigenvalues(Threaded(), p, c)
-    
+
     @test length(ev) >= 10
     @test round(real(ev[end])) == 1
-    @test round(real(ev[end - 1])) == 3
-    @test round(real(ev[end - 2])) == 5
-    @test round(real(ev[end - 3])) == 7
-    @test round(real(ev[end - 4])) == 9
-    @test round(real(ev[end - 5])) == 11
-    @test round(real(ev[end - 6])) == 13
-    @test round(real(ev[end - 7])) == 15
+    @test round(real(ev[end-1])) == 3
+    @test round(real(ev[end-2])) == 5
+    @test round(real(ev[end-3])) == 7
+    @test round(real(ev[end-4])) == 9
+    @test round(real(ev[end-5])) == 11
+    @test round(real(ev[end-6])) == 13
+    @test round(real(ev[end-7])) == 15
+    @test round(real(ev[end-8])) == 17
+    @test round(real(ev[end-9])) == 19
+end
+
+@testset "Threaded Analytic correctness - 25 iterations with BigFloat" begin
+    p = HarmonicOscilatorData(0x00019, BigFloat("0.5"))
+    c = AIMCache(p)
+    ev = computeEigenvalues(Threaded(), p, c)
+
+    @test length(ev) >= 10
+    @test round(real(ev[end])) == 1
+    @test round(real(ev[end-1])) == 3
+    @test round(real(ev[end-2])) == 5
+    @test round(real(ev[end-3])) == 7
+    @test round(real(ev[end-4])) == 9
+    @test round(real(ev[end-5])) == 11
+    @test round(real(ev[end-6])) == 13
+    @test round(real(ev[end-7])) == 15
 end
