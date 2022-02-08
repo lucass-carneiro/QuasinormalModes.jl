@@ -65,7 +65,7 @@ For problems with the `IsAnalytic` trait, the user must implement the following 
 1. `get_ODEvar` which returns an object that represents the ODE's variable.
 2. `get_ODEeigen` which returns an object that represents the ODE's eigenvalue.
 
-Failure to implement these functions returns an error with the appropriate message. Note that these traits only check that such functions are implemented for a certain problem type and not that they follow a particular implementation pattern. The contract on the functions implementations is *soft* and will be clarified further on. Failure to abide by these soft contracts results in undefined behaviour.
+Failure to implement these functions returns an error with the appropriate message. Note that these traits only check that such functions are implemented for a certain problem type and not that they follow a particular implementation pattern. The contract on the functions implementations is *soft* and will be clarified further on. Failure to abide by these soft contracts results in undefined behavior.
 
 ## Extending the default functionality
 
@@ -94,7 +94,33 @@ In order to minimize memory allocations, all functions that actually compute eig
 
 ## Stepping methods
 
-In order to compute ``\delta_n``, `QuasinormalModes.jl` evolves ``\lambda_0`` and ``s_0`` according to the previously stated equations. The evolution from step 1 to step ``n`` must happen sequentially but the step itself, that is, the computation of new values of ``\lambda`` and ``s`` from old ones can be performed in parallel. We've provided singleton types that allow the user to control this behaviour by passing instances of those types to the eigenvalue computing functions. The user can currently choose the following stepping methods:
+In order to compute ``\delta_n``, `QuasinormalModes.jl` evolves ``\lambda_0`` and ``s_0`` according to the previously stated equations. The evolution from step 1 to step ``n`` must happen sequentially but the step itself, that is, the computation of new values of ``\lambda`` and ``s`` from old ones can be performed in parallel. We've provided singleton types that allow the user to control this behavior by passing instances of those types to the eigenvalue computing functions. The user can currently choose the following stepping methods:
 
 1. `Serial`: Each instruction in a single AIM step is executed sequentially.
 2. `Threaded`: Instruction in a single AIM step is executed in parallel using Julia's built-in `Threads.@threads` macro.
+
+## Computing eigenvalues and general workflow guidelines 
+
+To compute eigenvalues, 3 functions are provided:
+1. `computeDelta!`: Computes the AIM "quantization condition" ``\delta_n``.
+2. `computeEigenvalues`: Computes a single, or a list of eigenvalues.
+3. `eigenvaluesInGrid`: Find all eigenvalues in a certain numerical grid.
+
+Depending on the problem type, these functions return and behave differently. In a `QuadraticEigenvalueProblem`.
+1. `computeDelta!`: Returns a polynomial whose roots are the eigenvalues of the ODE.
+2. `computeEigenvalues`: Computes the complete list of eigenvalues given by the roots of the computed polynomial.
+
+In a `NumericAIMProblem`,
+1. `computeDelta!`: Returns a value of the quantization condition at a given point in the complex plane.
+2. `computeEigenvalues`: Computes a single eigenvalues from an initial trial frequency.
+3. `eigenvaluesInGrid`: Attempts to find eigenvalues using a grid of real or complex data points as initial trial frequencies passed to `NLSolve`.
+
+For more detail on these functions and their behaviors with each problem type refer to the the [API Reference](api_ref.md) where specific descriptions can be found. 
+
+The AIM provides the user with "two degrees of freedom" when computing eigenvalues: The number of iterations to perform (which we refer by ``n``) and the point around which the ODE functions will be expanded (which we refer by``x_0``). Additionally, our implementation asks for an initial guess in `NumericAIMProblem`s to find the roots of ``\delta_n``, adding yet another degree of freedom to the method. So far, the literature around the AIM cannot provide a general prescription for choosing optimal values for ``n`` or ``x_0``, however, it is know that ``x_0`` can affect the speed at which the method converges to a correct solution and if ``n`` is chosen to be too small, no eigenvalues will be found. Furthermore, because `computeEigenvalues` employ a Newton-like rootfinding method (provided by `NLSolve`) that is based on an initial guess for the root, choosing this guess "too far" from the correct solution might not converge to a root or it might be that the root is unstable and any small perturbation around an initial guess produces wildly different results. That being said, we can still outline a general procedure that works empirically when finding quasinormal modes based on the different problem types.
+
+First, when the optimal values of ``n`` and ``x_0`` are unknown, start with ``x_0`` in the midpoint of the compactified domain and ``n`` around 20 or 30. This number of iterations will not yield the the most accurate results but it will be enough to determine if we are on the right track while also not being too computationally expensive. From here, we can take one of two different paths:
+
+1. If we have a `QuadraticEigenvalueProblem`, we will have a list of several eigenvalue candidates that are roots of the ``\delta_n`` polynomial but are not necessarily eigenvalues of the ODE. To determine the true eigenvalues, we need to call `computeEigenvalues` repeatedly with an increasing number of AIM iterations. Eigenvalues that persist or change slowly when the number of iterations changes are very likely to be true eigenvalues of the ODE. Other values are likely to be spurious numerical results. This procedure is similar to the one employed when computing eigenvalues using pseudospectral methods: Various spurious results are produced and the true ones are found by repeatedly refining and comparing results. Once true eigenvalues start to emerge, we can start to play around with ``x_0`` to see if more eigenvalues emerge in the list.
+
+2. If we have a `NumericAIMProblem`, a call to `computeEigenvalues` can only produce a single eigenvalue based on an initial guess. Assuming that the `NLSolve` actually converges to a solution this mode is also under the peril of returning spurious results. Here, the wisdom of the `QuadraticEigenvalueProblem`s remains: True results must be refined when the number of iterations increase (indicating numerical convergence). If the returned eigenvalue changes wildly for a fixed initial guess this might indicate that the result is spurious. Once an eigenvalue is found, fine tuning to ``x_0`` can be made. A good value for ``x_0`` will make `NLSolve` converge to a root faster (with less iterations) than a bad one. Also, note that the optimal ``x_0`` value for a certain eigenvalue might not be optimal for all eigenvalues in the spectrum of the ODE (this has been observed empirically). This means that if we are sure that there is an eigenvalue in the vicinity of an initial guess (because we have obtained it with another method, for instance) and `computeEigenvalues` cannot find it even when the number of AIM iterations is high, tuning ``x_0`` might make these modes emerge. Furthermore, in `NumericAIMProblem`s the function `computeDelta!` is a point-wise function that returns the value of ``\delta_n`` anywhere in the complex plane. Using this function, the user can employ a different root finding method than `NLSolve`. This flexibility allows one to eliminate the additional degree of freedom imposed by the initial guess. We can, for instance, use [RootsAndPoles.jl](https://github.com/fgasdia/RootsAndPoles.jl) to find all roots of ``\delta_n`` or any other root finding method desired.

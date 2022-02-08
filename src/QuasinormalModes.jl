@@ -58,22 +58,22 @@ export eigenvaluesInGrid
 """
 Parent super-type of all problems that can be solved using the AIM.
 """
-abstract type AIMProblem{N <: Unsigned, T <: Number} end
+abstract type AIMProblem{N<:Unsigned,T<:Number} end
 
 """
 Parent super-type of all problems that can be solved using the AIM semi-analytically.
 """
-abstract type AnalyticAIMProblem{N <: Unsigned, T <: Number} <: AIMProblem{N,T} end
+abstract type AnalyticAIMProblem{N<:Unsigned,T<:Number} <: AIMProblem{N,T} end
 
 """
 Parent super-type of all problems that can be solved using the AIM numerically.
 """
-abstract type NumericAIMProblem{N <: Unsigned, T <: Number} <: AIMProblem{N,T} end
+abstract type NumericAIMProblem{N<:Unsigned,T<:Number} <: AIMProblem{N,T} end
 
 """
 Parent super-type of all problems whose eigenvalue is a quadratic polynomial.
 """
-abstract type QuadraticEigenvalueProblem{N <: Unsigned, T <: Number} <: AnalyticAIMProblem{N,T} end
+abstract type QuadraticEigenvalueProblem{N<:Unsigned,T<:Number} <: AnalyticAIMProblem{N,T} end
 
 # ------------------------------------------------------------------
 # 4. Traits
@@ -111,7 +111,7 @@ AnalyticityTrait(::Type{<:NumericAIMProblem}) = IsNumeric()
 
 """
 All problem types must implement a λ0 function.
-This behaviour is enforced by the default implementations.
+This behavior is enforced by the default implementations.
 """
 λ0(x::T) where {T} = λ0(AnalyticityTrait(T), x)
 λ0(::IsAnalytic, x) = error("Please implement a λ0 function for ", typeof(x))
@@ -119,7 +119,7 @@ This behaviour is enforced by the default implementations.
 
 """
 All problem types must implement a S0 function.
-This behaviour is enforced by the default implementations.
+This behavior is enforced by the default implementations.
 """
 S0(x::T) where {T} = S0(AnalyticityTrait(T), x)
 S0(::IsAnalytic, x) = error("Please implement a S0 function for ", typeof(x))

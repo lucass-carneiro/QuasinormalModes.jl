@@ -133,14 +133,7 @@ Here we are setting up problems to be solved using 48 iterations with `x0 = 0.43
 
 # Computing the eigenvalues
 
-To compute eigenvalues, 3 functions are provided:
-1. `computeDelta!`: Compute the AIM "quantization condition".
-2. `computeEigenvalues`: Compute a single, or a list of eigenvalues.
-3. `eigenvaluesInGrid`: Find all eigenvalues in a certain numerical grid.
-
-Depending on the problem type, these functions return and behave differently. In a `QuadraticEigenvalueProblem` for instance, `computeDelta!` returns a polynomial whose roots are the eigenvalues of the ODE. In a `NumericAIMProblem` it returns a value of the quantization condition at a given point, which means that in this case it behaves as a numerical function that can be used with an external root finding algorithm. To see the behaviour of these functions with each problem type refer to the the [API Reference](api_ref.md) where specific descriptions can be found. 
-
-First, we will call `computeEigenvalues(Serial(), p_ana, c_ana)` (or `computeEigenvalues(Threaded(), p_ana, c_ana)` if you wish, but don't forget to start julia with the `--threads` option). This returns an array with all the roots of the quantization condition. We will sort the array by descending order in the imaginary part and after that we will filter the array to remove entries whose real part is too small or with a positive imaginary part and print the result to `stdout`:
+Finally, to compute the quasinormal frequencies we will call `computeEigenvalues(Serial(), p_ana, c_ana)` (or `computeEigenvalues(Threaded(), p_ana, c_ana)` if you wish, but don't forget to start julia with the `--threads` option). This returns an array with all the roots of the quantization condition. We will sort the array by descending order in the imaginary part and after that we will filter the array to remove entries whose real part is too small or with a positive imaginary part and print the result to `stdout`:
 
 ```julia
 m_ana = computeEigenvalues(Serial(), p_ana, c_ana)
@@ -165,9 +158,7 @@ sort!(m_ana, by = x -> imag(x))
 printQNMs(m_ana, 1.0e-10, false)
 ```
 
-Note that not all values are actually eigenvalues of the ODE (that is, quasinormal modes). This is to be expected and a similar effect is also observed in other numerical methods that perform the same task, such as the pseudo-spectral method. To find "true" modes, the user must experiment with the expansion parameter `x0`, the number of iterations and perform successive convergence tests with the computed modes.
-
-Next we will call
+Remember that (as was discussed in [here](org.md#Computing-eigenvalues-and-general-workflow-guidelines)) not all values are actually eigenvalues of the ODE (that is, quasinormal modes). Next we will call
 
 ```julia
 ev = computeEigenvalues(Serial(), p_num, c_num, Complex(0.22, -0.20), nls_xtol = 1.0e-10, nls_ftol = 1.0e-10)
