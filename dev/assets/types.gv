@@ -1,0 +1,6 @@
+// dot -Tsvg types.gv -o types.svg
+digraph types {
+     AIMProblem->AnalyticAIMProblem;
+     AIMProblem->NumericAIMProblem;
+     AnalyticAIMProblem->QuadraticEigenvalueProblem
+}
