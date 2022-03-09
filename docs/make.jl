@@ -15,3 +15,8 @@ makedocs(sitename = "QuasinormalModes.jl",
         "api_ref.md"
     ]
 )
+
+deploydocs(
+    repo = "github.com/lucass-carneiro/QuasinormalModes.jl.git",
+    target = "latest"
+)
