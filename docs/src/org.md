@@ -2,7 +2,7 @@
 
 ## A Brief description of the AIM
 
-`QuasinormalModes.jl` is in it's core an implementation of the Asymptotic Iteration Method. For a complete description of the general method the reader is encouraged to read [this paper](https://arxiv.org/abs/math-ph/0309066v1). Our implementation is based on the variation of the method described in [this paper](https://arxiv.org/abs/1111.5024). The method requires 3 basic steps:
+`QuasinormalModes.jl` is in its core an implementation of the Asymptotic Iteration Method. For a complete description of the general method the reader is encouraged to read [this paper](https://arxiv.org/abs/math-ph/0309066v1). Our implementation is based on the variation of the method described in [this paper](https://arxiv.org/abs/1111.5024). The method requires 3 basic steps:
 
 1. Incorporate the asymptotic boundary conditions into the ODE.
 2. Compactify the domain of the problem (if it isn't already compact).
@@ -30,7 +30,7 @@ s_n = s^\prime_{n-1} + s_0 s_{n-1}.
 
 ## The type hierarchy
 
-`QuasinormalModes.jl` employs two main strategies in order to find eigenvalues using the AIM: problems can be solved in a semi-analytic or purely numeric fashion. We make use of Julia's type system in order to implement structures that reflect these operation modes. All of the package's exported functionality is designed to operate on sub-types of abstract types that reflect the desired solution strategy (semi-analytic or numeric). The user is responsible for constructing concrete types that are sub-types of the exported abstract types with the actual problem specific information. It's thus usefully to start by inspecting the package's exported type hierarchy:
+`QuasinormalModes.jl` employs two main strategies in order to find eigenvalues using the AIM: problems can be solved in a semi-analytic or purely numeric fashion. We make use of Julia's type system in order to implement structures that reflect these operation modes. All of the package's exported functionality is designed to operate on sub-types of abstract types that reflect the desired solution strategy (semi-analytic or numeric). The user is responsible for constructing concrete types that are sub-types of the exported abstract types with the actual problem specific information. It's thus useful to start by inspecting the package's exported type hierarchy:
 
 ```@raw html
 <table border="0"><tr>
