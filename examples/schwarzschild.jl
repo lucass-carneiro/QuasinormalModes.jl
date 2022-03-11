@@ -87,7 +87,7 @@ end
 sort!(m_ana, by = x -> imag(x))
 
 println("Analytic results")
-printQNMs(m_ana, 1.0e-10, false)
+printQNMs(m_ana[1:5], 1.0e-10, false)
 
 ev = computeEigenvalues(Serial(), p_num, c_num, Complex(0.22, -0.20), nls_xtol = 1.0e-10, nls_ftol = 1.0e-10)
 
