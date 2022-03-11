@@ -29,7 +29,7 @@ and then type backspace to exit back to the REPL.
 
 # Using
 
-For detailed usage instructions please read the [documentation](https://lucass-carneiro.github.io/QuasinormalModes.jl/).
+For detailed usage instructions please read the [documentation](https://lucass-carneiro.github.io/QuasinormalModes.jl/). You can also find examples [here](https://github.com/lucass-carneiro/QuasinormalModes.jl/tree/master/examples).
 
 # Contributing
 
