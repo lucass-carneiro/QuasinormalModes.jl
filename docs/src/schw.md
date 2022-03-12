@@ -182,7 +182,7 @@ Results of Nonlinear Solver Algorithm
    * |f(x)| < 1.0e-10: false
  * Function Calls (f): 6
  * Jacobian Calls (df/dx): 6
- ```
+```
 
 This is precisely the information returned by the `SolverResults` object in human readable format. Most of these fields are self explanatory, but we must pay close attention to the `Convergence` field where we see that for convergence to be declared, either of two tests must pass:
 
