@@ -56,7 +56,7 @@ QuasinormalModes.get_x0(d::NSchwarzschildData{N,T}) where {N,T} = d.x0
 # 3. Constructing problems and caches
 # ------------------------------------------------------------------
 
-p_ana = SchwarzschildData(0x00030, Complex(BigFloat("0.43"), BigFloat("0.0")), 0x00000, 0x00000);
+p_ana = SchwarzschildData(0x000030, Complex(BigFloat("0.43"), BigFloat("0.0")), 0x00000, 0x00000);
 p_num = NSchwarzschildData(0x00030, Complex(0.43, 0.0), 0x00000, 0x00000);
 
 c_ana = AIMCache(p_ana)
@@ -87,7 +87,7 @@ end
 sort!(m_ana, by = x -> imag(x))
 
 println("Analytic results")
-printQNMs(m_ana[1:5], 1.0e-10, false)
+printQNMs(m_ana, 1.0e-10, false)
 
 ev = computeEigenvalues(Serial(), p_num, c_num, Complex(0.22, -0.20), nls_xtol = 1.0e-10, nls_ftol = 1.0e-10)
 

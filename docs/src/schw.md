@@ -164,6 +164,41 @@ Remember that (as was discussed in [here](org.md#Computing-eigenvalues-and-gener
 ev = computeEigenvalues(Serial(), p_num, c_num, Complex(0.22, -0.20), nls_xtol = 1.0e-10, nls_ftol = 1.0e-10)
 ```
 
-The variable `ev` now contains a `SolverResults` object from the [NLsolve.jl](https://github.com/JuliaNLSolvers/NLsolve.jl) package. The first solution element represents the real part of the computed mode while the second represents the imaginary part. The object also contains information about the convergence of the method. Note that with a numerical problem we can only find one mode at a time using a certain initial guess. This can be somewhat remedied by using `eigenvaluesInGrid`, which uses multiple initial conditions as a guess and collects the converged results.
+The variable `ev` now contains a `SolverResults` object from the [NLsolve.jl](https://github.com/JuliaNLSolvers/NLsolve.jl) package. The first solution element represents the real part of the computed mode while the second represents the imaginary part. The object also contains information about the convergence of the method. Note that with a numerical problem we can only find one mode at a time using a certain initial guess. This can be somewhat remedied by using `eigenvaluesInGrid`, which uses multiple initial conditions as a guess and collects the converged results. The complete source code of this example can be found [here](https://github.com/lucass-carneiro/QuasinormalModes.jl/blob/master/examples/schwarzschild.jl).
 
-The complete source code of this example can be found in [schwarzschild.jl](https://github.com/lucass-carneiro/QuasinormalModes.jl/blob/master/examples/schwarzschild.jl)
+# Interpreting `SolverResults` output
+
+If we print `ev` to `stdout`, we will see something like
+
+```
+Results of Nonlinear Solver Algorithm
+ * Algorithm: Trust-region with dogleg and autoscaling
+ * Starting Point: [0.22, -0.2]
+ * Zero: [0.22090807949439797, -0.20979076729905097]
+ * Inf-norm of residuals: (a large number)
+ * Iterations: 5
+ * Convergence: true
+   * |x - x'| < 1.0e-10: true
+   * |f(x)| < 1.0e-10: false
+ * Function Calls (f): 6
+ * Jacobian Calls (df/dx): 6
+ ```
+
+This is precisely the information returned by the `SolverResults` object in human readable format. Most of these fields are self explanatory, but we must pay close attention to the `Convergence` field where we see that for convergence to be declared, either of two tests must pass:
+
+1. The `|x - x'| < 1.0e-10: true` test indicates that the difference between two solution candidates obtained by two consecutive iterations of the trust region algorithm are differing by an amount smaller than `1.0e-10`
+2. The `|f(x)| < 1.0e-10: false` test indicates that the Inf-norm of the residuals (the value of the function we are trying to find the root for yields after we substitute a solution candidate back into it) is not smaller than `1.0e-10`. In fact, in this example it is a large number.
+
+The fact that the first test passes and the second one does not suggests that the root finding method is converging, since at each iteration the difference between candidate solutions gets smaller, but not to a true root of the AIM quantization condition (and therefore a quasinormal mode) since that we get a number far from zero when we substitute this value back at the quantization condition. To resolve this kind of ambiguity, we can employ a different root finding method that does not "polish" roots like Newton's method but "brackets" them, like the bisection method, that is guaranteed to converge to a root if it exists within an interval. Such a method for finding all roots and poles of a complex function within an interval exists and is know as the [GRPF](https://github.com/PioKow/GRPF) method, implemented in Julia by the [RootsAndPoles.jl](https://github.com/fgasdia/RootsAndPoles.jl) package. This algorithm works by subdividing a complex plane domain in triangles and applying a discretized version of Cauchy's argument principle, which counts the roots and poles of a complex function within a region. Despite relying internally on `NLsolve.jl` in the `computeEigenvalues` or `eigenvaluesInGrid` family of functions, `QuasinormalModes.jl`'s core responsibility is to compute the AIM quantization condition at any point in the complex plane for a given problem. Such computation is provided by the `computeDelta!` family of functions. By exposing this functionality, the user has complete freedom to choose what root finding method will be employed. In fact, internally, `computeEigenvalues` simply wraps `computeDelta!` into another function that is on the format accepted by `NLsolve.jl`. To see a concrete example of finding Schwarzschild modes with `RootsAndPoles.jl` look at [this](https://github.com/lucass-carneiro/QuasinormalModes.jl/blob/master/examples/schwarzschild_roots_and_poles.jl) example, which when asked to search for roots in the ``[0.1 - 1.0 i, 1.0 + 1 .0 i]`` range reports
+
+```
+Roots:
+0.2082018398054518 - 0.7014133118267079im
+0.2209861849099763 - 0.2095673605939246im
+0.2082018397886055 - 0.7014133118222261im
+-------------------------------------------
+Poles:
+0.2082018397894562 - 0.7014133118211809mi
+```
+
+Within this list, we can find the fundamental and first excited mode. By comparing these two results we can be sure that a found root is in fact a root of the quantization condition. Weather or not this root is an actual eigenvalue of the original second order ODE is a different story and was [previously](https://lucass-carneiro.github.io/QuasinormalModes.jl/dev/org/#Computing-eigenvalues-and-general-workflow-guidelines) discussed.
