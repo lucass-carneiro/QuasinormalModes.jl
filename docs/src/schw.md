@@ -205,8 +205,8 @@ Within this list, we can find the fundamental and first excited mode. By compari
 
 # Computing high ``\ell`` quasinormal modes
 
-As a final example, we have included [here](https://github.com/lucass-carneiro/QuasinormalModes.jl/examples/high_l_Schwarzschild) source files for computing a and plotting a large list of Schwarzschild quasinormal modes with varying values of ``ell``. This code is an excerpt of a production code, created to compute Schwarzschild QNMs by perturbing the system with fields of various spins. This examples allows not only to see that we are able to recover literature values as wells as "visualize" the different frequencies.
+As a final example, we have included [here](https://github.com/lucass-carneiro/QuasinormalModes.jl/tree/master/examples/high_l_Schwarzschild) source files for computing a and plotting a large list of Schwarzschild quasinormal modes with varying values of ``ell``. This code is an excerpt of a production code, created to compute Schwarzschild QNMs by perturbing the system with fields of various spins. This examples allows not only to see that we are able to recover literature values as wells as "visualize" the different frequencies.
 
 ![l_plot](https://github.com/lucass-carneiro/QuasinormalModes.jl/master/examples/high_l_Schwarzschild/l_plot.pdf "Schwarzschild quasinormal frequencies.")
 
-Each point in the plot represents a certain value of ``\ell`` and the colors indicate a fixed ``n`` value. The list of numeric values can be found [here](https://github.com/lucass-carneiro/QuasinormalModes.jl/examples/high_l_Schwarzschild/qnm_2022-04-05%2017:49:10_s_0.dat)
+Each point in the plot represents a certain value of ``\ell`` and the colors indicate a fixed ``n`` value. The list of numeric values can be found [here](https://github.com/lucass-carneiro/QuasinormalModes.jl/blob/master/examples/high_l_Schwarzschild/qnm_2022-04-05%2017:49:10_s_0.dat)
