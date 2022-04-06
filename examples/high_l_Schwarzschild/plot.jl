@@ -34,7 +34,7 @@ function plot_ns(save=true)
     p4 = plot!(p3, dfs[4].real, -dfs[4].imag, seriestype=:scatter, label=L"n = 3", color=:green)
 
     if save
-        savefig(p4, "high_l_Schwarzschild/l_plot.pdf")
+        savefig(p4, "high_l_Schwarzschild/l_plot.svg")
     end
     
     return p4
