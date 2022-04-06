@@ -212,7 +212,7 @@ As a final example, we have included [here](https://github.com/lucass-carneiro/Q
 <td>
 	<figure>
 		<img src='../assets/l_plot.svg' alt='missing'><br>
-		<figcaption><em>Large ``\ell`` modes in a Schwarzschild background</em></figcaption>
+		<figcaption><em>Quasinormal modes in a Schwarzschild background</em></figcaption>
 	</figure>
 </td>
 </tr></table>
