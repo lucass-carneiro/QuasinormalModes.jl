@@ -211,7 +211,7 @@ As a final example, we have included [here](https://github.com/lucass-carneiro/Q
 <table border="0"><tr>
 <td>
 	<figure>
-		<img src='https://github.com/lucass-carneiro/QuasinormalModes.jl/master/examples/high_l_Schwarzschild/l_plot.pdf' alt='missing'><br>
+		<img src='../assets/l_plot.pdf' alt='missing'><br>
 		<figcaption><em>QuasinormalModes.jl type hierarchy</em></figcaption>
 	</figure>
 </td>
