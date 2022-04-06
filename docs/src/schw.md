@@ -211,8 +211,8 @@ As a final example, we have included [here](https://github.com/lucass-carneiro/Q
 <table border="0"><tr>
 <td>
 	<figure>
-		<img src='../assets/l_plot.pdf' alt='missing'><br>
-		<figcaption><em>QuasinormalModes.jl type hierarchy</em></figcaption>
+		<img src='../assets/l_plot.svg' alt='missing'><br>
+		<figcaption><em>Large ``\ell`` modes in a Schwarzschild background</em></figcaption>
 	</figure>
 </td>
 </tr></table>
