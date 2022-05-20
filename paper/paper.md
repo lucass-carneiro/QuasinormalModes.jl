@@ -71,6 +71,6 @@ In \autoref{fig:time}, the time required to perform a certain number of iteratio
 
 # Acknowledgements
 
-I would like to thank Iara Ota for the helpful comments, discussions and revision of this paper. I would also like to thank Dr. Erik Schnetter, Soham Mukherjee and Stamatis Vretinaris for the help and discussions regarding root finding methods and to Dr. Schnetter for directly contributing documentation typo corrections and suggestions for improving the package's overall presentation and documentation. This research was supported by the Coordenação de Aperfeiçoamento de Pessoal de Nível Superior (CAPES, Brazil) - Finance Code 001
+I would like to thank my PhD advisor, Dr. Maurício Richartz, for introducing me to the AIM and providing helpful discussions and comments about the method's inner workings as well as helpful revision and comments about the paper's structure. I would also like to thank Dr. Iara Ota for the helpful comments, discussions and revision of this paper. I would also like to thank Dr. Erik Schnetter, Soham Mukherjee and Stamatis Vretinaris for the help and discussions regarding root finding methods and to Dr. Schnetter for directly contributing documentation typo corrections and suggestions for improving the package's overall presentation and documentation. This research was supported by the Coordenação de Aperfeiçoamento de Pessoal de Nível Superior (CAPES, Brazil) - Finance Code 001.
 
 # References

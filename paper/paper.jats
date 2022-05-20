@@ -326,15 +326,18 @@ a Creative Commons Attribution 4.0 International License (CC BY
 </sec>
 <sec id="acknowledgements">
   <title>Acknowledgements</title>
-  <p>I would like to thank Iara Ota for the helpful comments,
-  discussions and revision of this paper. I would also like to thank
-  Dr. Erik Schnetter, Soham Mukherjee and Stamatis Vretinaris for the
-  help and discussions regarding root finding methods and to
-  Dr. Schnetter for directly contributing documentation typo corrections
-  and suggestions for improving the package’s overall presentation and
-  documentation. This research was supported by the Coordenação de
-  Aperfeiçoamento de Pessoal de Nível Superior (CAPES, Brazil) - Finance
-  Code 001</p>
+  <p>I would like to thank my PhD advisor, Dr. Maurício Richartz, for
+  introducing me to the AIM and providing helpful discussions and
+  comments about the method’s inner workings as well as helpful revision
+  and comments about the paper’s structure. I would also like to thank
+  Dr. Iara Ota for the helpful comments, discussions and revision of
+  this paper. I would also like to thank Dr. Erik Schnetter, Soham
+  Mukherjee and Stamatis Vretinaris for the help and discussions
+  regarding root finding methods and to Dr. Schnetter for directly
+  contributing documentation typo corrections and suggestions for
+  improving the package’s overall presentation and documentation. This
+  research was supported by the Coordenação de Aperfeiçoamento de
+  Pessoal de Nível Superior (CAPES, Brazil) - Finance Code 001.</p>
 </sec>
 </body>
 <back>
@@ -386,7 +389,7 @@ a Creative Commons Attribution 4.0 International License (CC BY
           <name><surname>Stein</surname><given-names>Leo C.</given-names></name>
         </person-group>
         <article-title>qnm: A Python package for calculating Kerr quasinormal modes, separation constants, and spherical-spheroidal mixing coefficients</article-title>
-        <source>J. Open Source Softw.</source>
+        <source>Journal of Open Source Software</source>
         <year iso-8601-date="2019">2019</year>
         <volume>4</volume>
         <issue>42</issue>
