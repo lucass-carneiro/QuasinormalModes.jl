@@ -11,7 +11,9 @@ To compute eigenvalues (and thus quasinormal frequencies) this package uses the 
 ![Build Status](https://github.com/lucass-carneiro/QuasinormalModes.jl/actions/workflows/CI.yml/badge.svg)
 [![codecov](https://codecov.io/gh/lucass-carneiro/QuasinormalModes.jl/branch/master/graph/badge.svg?token=GK9052NQK2)](https://codecov.io/gh/lucass-carneiro/QuasinormalModes.jl)
 
-[![DOI](https://zenodo.org/badge/316366566.svg)](https://zenodo.org/badge/latestdoi/316366566)
+[![Zenodo archive](https://zenodo.org/badge/316366566.svg)](https://zenodo.org/badge/latestdoi/316366566)
+
+[![JOSS paper](https://joss.theoj.org/papers/10.21105/joss.04077/status.svg)](https://doi.org/10.21105/joss.04077)
 
 # Author
 [Lucas T. Sanches](lucas.t@ufabc.edu.br), Centro de Ciências Naturais e Humanas, Universidade Federal do ABC (UFABC).
