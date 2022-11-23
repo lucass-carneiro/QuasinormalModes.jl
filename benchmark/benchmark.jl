@@ -1,5 +1,4 @@
 using QuasinormalModes
-using RootsAndPoles
 
 # ------------------------------------------------------------------
 # 1. Setting up Schwarzschild black hole data structure for
@@ -86,5 +85,6 @@ function bench_iter(iter_start, iter_end, x0, l, s, xt, ft, nls_iter, reference_
 end
 
 # We call the function once and discard the results in order so that the compilation time does not get included in the benchmark.
-bench_iter(0x00001, 0x00064, Complex(big"0.39", big"0.0"), 0x00000, 0x00000, big"1.0e-55", big"1.0e-55", 5000000, big"0.2209098781608393", big"-0.2097914341737619", 1)
-bench_iter(0x00001, 0x00064, Complex(big"0.39", big"0.0"), 0x00000, 0x00000, big"1.0e-55", big"1.0e-55", 5000000, big"0.2209098781608393", big"-0.2097914341737619", 20)
+# Reference values are obtained from https://pages.jh.edu/eberti2/ringdown/
+bench_iter(convert(UInt32, 1), convert(UInt32, 100), Complex(big"0.39", big"0.0"), 0x00000, 0x00000, big"1.0e-55", big"1.0e-55", 5000000, big"0.2209098781608393", big"-0.2097914341737619", 1)
+bench_iter(convert(UInt32, 1), convert(UInt32, 100), Complex(big"0.39", big"0.0"), 0x00000, 0x00000, big"1.0e-55", big"1.0e-55", 5000000, big"0.2209098781608393", big"-0.2097914341737619", 20)
