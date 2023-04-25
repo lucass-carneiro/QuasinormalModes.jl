@@ -3,7 +3,7 @@ using CSV
 using DataFrames
 using LaTeXStrings
 
-file = CSV.File("high_l_Schwarzschild/qnm_2022-04-05 17:49:10_s_0.dat", header=["iter", "l", "n", "real_guess", "imag_guess", "real", "imag"], delim=' ', skipto=2, ignorerepeated=true)
+file = CSV.File("high_l_qnm.dat", header=["iter", "l", "n", "real_guess", "imag_guess", "real", "imag"], delim=' ', skipto=2, ignorerepeated=true)
 df = DataFrame(file)
 
 function plot_ns(save=true)

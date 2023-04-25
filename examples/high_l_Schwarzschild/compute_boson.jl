@@ -9,7 +9,7 @@ function compute_boson(iter, s)
     p_num = Schwarzschild_boson(iter, x0, M, 0x00000, convert(UInt32, s))
     c_num = AIMCache(p_num)
 
-    file = open("qnm_" * Dates.format(now(), "yyyy-mm-dd HH:MM:SS") * "_s_$(s).dat", "w")
+    file = open("high_l_qnm.dat", "w")
     println(file, "# 1:Iterations 2:l 3:n 4:real(guess) 5:imag(guess) 6:re(omega) 7:im(omega)")
 
     if s == 0
